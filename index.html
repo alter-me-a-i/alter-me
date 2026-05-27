@@ -19,30 +19,37 @@ html, body { height: 100%; overflow-x: hidden; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
 input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
 
-/* always-visible mode toggle (top-right, fixed) */
+/* always-visible mode toggle (top-right, fixed): two-state, typography only */
 .mode-toggle {
   position: fixed;
   top: 1.1rem;
   right: 1.1rem;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 1px solid currentColor;
-  opacity: 0.45;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  gap: 1rem;
   z-index: 200;
-  transition: opacity 200ms, transform 200ms, background 200ms;
-  font-size: 1rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
-.mode-toggle:hover { opacity: 1; transform: scale(1.06); }
-.mode-icon { line-height: 1; pointer-events: none; }
-.mode-icon-light { display: none; }
-body[data-mode="light"] .mode-icon-dark { display: none; }
-body[data-mode="light"] .mode-icon-light { display: inline; }
-/* In skinned views, give the toggle a tiny backdrop so it stays legible over patterns */
-body[data-skin] .mode-toggle { background: rgba(127,127,127,0.08); backdrop-filter: blur(6px); }
+.mode-opt {
+  padding: 0.25rem 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  opacity: 0.35;
+  border-bottom: 1px solid transparent;
+  transition: opacity 180ms, border-color 180ms;
+  cursor: pointer;
+}
+.mode-opt:hover { opacity: 0.7; }
+body[data-mode="light"] .mode-opt[data-mode="light"],
+body[data-mode="dark"] .mode-opt[data-mode="dark"] {
+  opacity: 1;
+  border-bottom-color: currentColor;
+  cursor: default;
+}
 
 /* default skin: entry page — universal, neutral, mode-aware via vars */
 body {
@@ -639,10 +646,10 @@ body[data-skin="boomer"] .modal { background: #fff; color: #1a1a1a; border: 2px 
 <body>
 
 <!-- Always-visible light/dark toggle, top right -->
-<button id="modeToggle" class="mode-toggle" aria-label="Toggle light/dark mode" title="Toggle light/dark">
-  <span class="mode-icon mode-icon-dark">☾</span>
-  <span class="mode-icon mode-icon-light">☀</span>
-</button>
+<div id="modeToggle" class="mode-toggle" role="group" aria-label="Color mode">
+  <button class="mode-opt" data-mode="light">light</button>
+  <button class="mode-opt" data-mode="dark">dark</button>
+</div>
 
 <!-- =========================================================
      SCREEN 1 — ENTRY FLOW (universal, pre-skin)
@@ -812,8 +819,8 @@ body[data-skin="boomer"] .modal { background: #fff; color: #1a1a1a; border: 2px 
   <div class="chat" id="chat"></div>
 
   <div class="composer">
-    <button class="mic" id="micBtn" title="Voice input" style="display:none;">🎙</button>
-    <textarea id="userInput" placeholder="Type here, or use the mic." rows="2"></textarea>
+    <button class="mic" id="micBtn" title="Voice input" style="display:none;">voice</button>
+    <textarea id="userInput" placeholder="Type, or press voice." rows="2"></textarea>
     <button id="sendBtn">Send</button>
   </div>
 
@@ -880,11 +887,13 @@ document.addEventListener('DOMContentLoaded', () => {
     mode = prefersDark ? 'dark' : 'light';
   }
   document.body.setAttribute('data-mode', mode);
-  document.getElementById('modeToggle').addEventListener('click', () => {
-    const current = document.body.getAttribute('data-mode');
-    const next = current === 'dark' ? 'light' : 'dark';
-    document.body.setAttribute('data-mode', next);
-    try { localStorage.setItem('alter-me-mode', next); } catch (e) {}
+  document.querySelectorAll('.mode-opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const next = btn.getAttribute('data-mode');
+      if (next === document.body.getAttribute('data-mode')) return;
+      document.body.setAttribute('data-mode', next);
+      try { localStorage.setItem('alter-me-mode', next); } catch (e) {}
+    });
   });
 })();
 
