@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+<title>Alter-Me. Know Thyself.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&family=Space+Mono:wght@400;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,700&family=Plus+Jakarta+Sans:wght@300;400;500;700&family=Crimson+Pro:wght@400;600;800&family=DM+Serif+Display&family=Lora:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+/* ============================================
+   ALTER-ME — single-file prototype
+   No tracking. No cookies. No third-party signin.
+   All data local. All encryption client-side.
+   ============================================ */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow-x: hidden; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+
+/* always-visible mode toggle (top-right, fixed) */
+.mode-toggle {
+  position: fixed;
+  top: 1.1rem;
+  right: 1.1rem;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  opacity: 0.45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  transition: opacity 200ms, transform 200ms, background 200ms;
+  font-size: 1rem;
+}
+.mode-toggle:hover { opacity: 1; transform: scale(1.06); }
+.mode-icon { line-height: 1; pointer-events: none; }
+.mode-icon-light { display: none; }
+body[data-mode="light"] .mode-icon-dark { display: none; }
+body[data-mode="light"] .mode-icon-light { display: inline; }
+/* In skinned views, give the toggle a tiny backdrop so it stays legible over patterns */
+body[data-skin] .mode-toggle { background: rgba(127,127,127,0.08); backdrop-filter: blur(6px); }
+
+/* default skin: entry page — universal, neutral, mode-aware via vars */
+body {
+  --bg: #000;
+  --fg: #fff;
+  --hairline: rgba(255,255,255,0.25);
+  --hairline-strong: rgba(255,255,255,0.6);
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  line-height: 1.5;
+  transition: background 400ms ease, color 400ms ease;
+}
+body[data-mode="light"]:not([data-skin]) {
+  --bg: #fafaf6;
+  --fg: #0a0a0a;
+  --hairline: rgba(0,0,0,0.22);
+  --hairline-strong: rgba(0,0,0,0.6);
+}
+
+/* shared screen wrapper */
+.screen { display: none; width: 100%; max-width: 720px; margin: 0 auto; }
+.screen.active { display: block; animation: fade 600ms ease both; }
+@keyframes fade { from { opacity: 0; transform: translateY(8px);} to { opacity: 1; transform: translateY(0);} }
+
+/* ============== ENTRY FLOW (pre-skin universal aesthetic) ============== */
+.entry-screen { text-align: center; }
+.entry-screen .brand {
+  font-size: clamp(1.75rem, 5.5vw, 2.5rem);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.6rem;
+}
+.entry-screen .brand .dash { display: inline-block; transform: scaleX(1.6); margin: 0 0.15em; opacity: 0.7; }
+.entry-screen .tag {
+  font-size: 0.85rem;
+  opacity: 0.55;
+  margin-bottom: 5rem;
+  letter-spacing: 0.04em;
+}
+.entry-screen .tag-sep { display: inline-block; margin: 0 0.6em; opacity: 0.5; }
+
+.entry-screen .q {
+  margin-bottom: 3.5rem;
+}
+.entry-screen .q label {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.85;
+  letter-spacing: 0.01em;
+}
+.entry-screen .q input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--hairline);
+  padding: 0.5rem 0.5rem 0.7rem;
+  font-size: 2rem;
+  color: var(--fg);
+  outline: none;
+  transition: border-color 200ms;
+  width: 220px;
+  max-width: 80%;
+  text-align: center;
+  font-family: inherit;
+  letter-spacing: 0.05em;
+}
+.entry-screen .q input::placeholder { opacity: 0.3; }
+.entry-screen .q input:focus { border-bottom-color: var(--hairline-strong); }
+
+.entry-screen .footer {
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+.entry-screen .privacy {
+  font-size: 0.72rem;
+  opacity: 0.4;
+  letter-spacing: 0.06em;
+  max-width: 32ch;
+  line-height: 1.6;
+}
+.btn-primary {
+  background: var(--fg);
+  color: var(--bg);
+  padding: 0.85rem 1.6rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: transform 150ms, opacity 150ms;
+}
+.btn-primary:hover { transform: translateX(2px); }
+.btn-primary:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-ghost {
+  border: 1px solid currentColor;
+  padding: 0.7rem 1.2rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: opacity 150ms;
+}
+.btn-ghost:hover { opacity: 0.75; }
+
+/* ============== ENTRY — links & consent ============== */
+.entry-consent {
+  margin-top: 2rem;
+  font-size: 0.72rem;
+  opacity: 0.45;
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+.entry-consent a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.entry-consent a:hover { opacity: 1; }
+.entry-links {
+  margin-top: 4rem;
+  text-align: center;
+  font-size: 0.7rem;
+  opacity: 0.35;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.entry-links a { color: inherit; text-decoration: none; transition: opacity 150ms; }
+.entry-links a:hover { opacity: 1; }
+.entry-links a.back-link { text-decoration: underline; text-underline-offset: 3px; }
+.entry-links span { opacity: 0.5; }
+
+/* ============== AGE GATE ============== */
+.age-gate-body {
+  margin: 4rem auto;
+  text-align: center;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  max-width: 36ch;
+}
+.age-gate-body p { margin-bottom: 1.6rem; opacity: 0.85; }
+.age-gate-body p:last-child { opacity: 0.55; font-size: 0.9rem; margin-top: 2.5rem; }
+.age-gate-body a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.age-gate-body a:hover { opacity: 1; }
+.age-gate-actions { margin-top: 2rem; text-align: center; }
+.age-gate-actions .btn-ghost { width: auto; }
+
+/* ============== THEME WRAPPERS ============== */
+/* When demographic is set on <body>, the onboarding/protocol screens repaint */
+
+body[data-skin="z"] {
+  background: #0a0a0a;
+  color: #f0f0f0;
+  font-family: 'Space Mono', ui-monospace, monospace;
+}
+body[data-skin="z"][data-mode="light"] {
+  background: #f0f0ea;
+  color: #0a0a0a;
+}
+body[data-skin="z"] .skin-display { font-family: 'JetBrains Mono', monospace; font-weight: 900; letter-spacing: -0.03em; text-transform: uppercase; }
+body[data-skin="z"] .skin-accent { color: #d4ff00; }
+body[data-skin="z"][data-mode="light"] .skin-accent { color: #4a6b00; }
+body[data-skin="z"] .skin-card {
+  background: #111;
+  border: 2px solid #fff;
+  box-shadow: 6px 6px 0 #d4ff00;
+}
+body[data-skin="z"][data-mode="light"] .skin-card {
+  background: #fff;
+  border: 2px solid #0a0a0a;
+  box-shadow: 6px 6px 0 #4a6b00;
+}
+body[data-skin="z"] .skin-input {
+  background: #000;
+  border: 2px solid #fff;
+  color: #fff;
+  padding: 0.7rem 0.9rem;
+  font-family: inherit;
+}
+body[data-skin="z"][data-mode="light"] .skin-input {
+  background: #fafaf4;
+  border: 2px solid #0a0a0a;
+  color: #0a0a0a;
+}
+body[data-skin="z"] .skin-input:focus { border-color: #d4ff00; outline: none; }
+body[data-skin="z"][data-mode="light"] .skin-input:focus { border-color: #4a6b00; }
+body[data-skin="z"] .skin-btn {
+  background: #d4ff00;
+  color: #000;
+  border: 2px solid #000;
+  box-shadow: 4px 4px 0 #fff;
+  padding: 0.85rem 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: transform 100ms;
+}
+body[data-skin="z"][data-mode="light"] .skin-btn {
+  background: #4a6b00;
+  color: #fff;
+  border: 2px solid #0a0a0a;
+  box-shadow: 4px 4px 0 #0a0a0a;
+}
+body[data-skin="z"] .skin-btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 #fff; }
+body[data-skin="z"][data-mode="light"] .skin-btn:hover { box-shadow: 6px 6px 0 #0a0a0a; }
+
+body[data-skin="millennial"] {
+  background: linear-gradient(135deg, #f5ede4 0%, #e8dcc8 100%);
+  color: #2a1f1a;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+body[data-skin="millennial"][data-mode="dark"] {
+  background: linear-gradient(135deg, #1f1812 0%, #2e251c 100%);
+  color: #f0e6d6;
+}
+body[data-skin="millennial"] .skin-display { font-family: 'DM Serif Display', serif; font-weight: 400; letter-spacing: -0.02em; }
+body[data-skin="millennial"] .skin-accent { color: #c4644c; }
+body[data-skin="millennial"][data-mode="dark"] .skin-accent { color: #e88a6f; }
+body[data-skin="millennial"] .skin-card {
+  background: rgba(255,255,255,0.6);
+  border-radius: 24px;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.8);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+}
+body[data-skin="millennial"][data-mode="dark"] .skin-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
+body[data-skin="millennial"] .skin-input {
+  background: rgba(255,255,255,0.5);
+  border: 1px solid rgba(42,31,26,0.15);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  color: #2a1f1a;
+}
+body[data-skin="millennial"][data-mode="dark"] .skin-input {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #f0e6d6;
+}
+body[data-skin="millennial"] .skin-input:focus { border-color: #c4644c; outline: none; }
+body[data-skin="millennial"][data-mode="dark"] .skin-input:focus { border-color: #e88a6f; }
+body[data-skin="millennial"] .skin-btn {
+  background: #2a1f1a;
+  color: #f5ede4;
+  border-radius: 999px;
+  padding: 0.85rem 1.8rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: transform 200ms, box-shadow 200ms;
+}
+body[data-skin="millennial"][data-mode="dark"] .skin-btn {
+  background: #f0e6d6;
+  color: #1f1812;
+}
+body[data-skin="millennial"] .skin-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+
+body[data-skin="x"] {
+  background: #1a1d1f;
+  color: #e8e6e1;
+  font-family: 'Lora', Georgia, serif;
+}
+body[data-skin="x"][data-mode="light"] {
+  background: #ede9df;
+  color: #1a1d1f;
+}
+body[data-skin="x"] .skin-display { font-family: 'Fraunces', serif; font-weight: 500; letter-spacing: -0.015em; }
+body[data-skin="x"] .skin-accent { color: #b08d57; }
+body[data-skin="x"][data-mode="light"] .skin-accent { color: #8b6a37; }
+body[data-skin="x"] .skin-card {
+  background: #25282b;
+  border: 1px solid #3a3d40;
+  border-radius: 4px;
+}
+body[data-skin="x"][data-mode="light"] .skin-card {
+  background: #f8f4ea;
+  border: 1px solid #d0c8b8;
+}
+body[data-skin="x"] .skin-input {
+  background: #1a1d1f;
+  border: 1px solid #3a3d40;
+  border-radius: 3px;
+  padding: 0.7rem 0.9rem;
+  color: #e8e6e1;
+}
+body[data-skin="x"][data-mode="light"] .skin-input {
+  background: #fdfaf2;
+  border: 1px solid #d0c8b8;
+  color: #1a1d1f;
+}
+body[data-skin="x"] .skin-input:focus { border-color: #b08d57; outline: none; }
+body[data-skin="x"][data-mode="light"] .skin-input:focus { border-color: #8b6a37; }
+body[data-skin="x"] .skin-btn {
+  background: #b08d57;
+  color: #1a1d1f;
+  border-radius: 2px;
+  padding: 0.85rem 1.6rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  transition: background 200ms;
+}
+body[data-skin="x"][data-mode="light"] .skin-btn {
+  background: #8b6a37;
+  color: #fdfaf2;
+}
+body[data-skin="x"] .skin-btn:hover { background: #c9a26a; }
+body[data-skin="x"][data-mode="light"] .skin-btn:hover { background: #a3804a; }
+
+body[data-skin="boomer"] {
+  background: #fbf8f3;
+  color: #1a1a1a;
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 1.15rem;
+}
+body[data-skin="boomer"][data-mode="dark"] {
+  background: #1a1612;
+  color: #fbf8f3;
+}
+body[data-skin="boomer"] .skin-display { font-family: 'Crimson Pro', serif; font-weight: 800; letter-spacing: -0.01em; }
+body[data-skin="boomer"] .skin-accent { color: #8b2c2c; }
+body[data-skin="boomer"][data-mode="dark"] .skin-accent { color: #d96a6a; }
+body[data-skin="boomer"] .skin-card {
+  background: #fff;
+  border: 2px solid #1a1a1a;
+  border-radius: 8px;
+  box-shadow: 0 4px 0 #1a1a1a;
+}
+body[data-skin="boomer"][data-mode="dark"] .skin-card {
+  background: #25201c;
+  border: 2px solid #fbf8f3;
+  box-shadow: 0 4px 0 #fbf8f3;
+}
+body[data-skin="boomer"] .skin-input {
+  background: #fff;
+  border: 2px solid #1a1a1a;
+  border-radius: 4px;
+  padding: 0.85rem 1rem;
+  font-size: 1.15rem;
+  color: #1a1a1a;
+}
+body[data-skin="boomer"][data-mode="dark"] .skin-input {
+  background: #1a1612;
+  border: 2px solid #fbf8f3;
+  color: #fbf8f3;
+}
+body[data-skin="boomer"] .skin-input:focus { border-color: #8b2c2c; outline: none; }
+body[data-skin="boomer"][data-mode="dark"] .skin-input:focus { border-color: #d96a6a; }
+body[data-skin="boomer"] .skin-btn {
+  background: #1a1a1a;
+  color: #fbf8f3;
+  border-radius: 4px;
+  padding: 1rem 1.8rem;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+body[data-skin="boomer"][data-mode="dark"] .skin-btn {
+  background: #fbf8f3;
+  color: #1a1612;
+}
+body[data-skin="boomer"] .skin-btn:hover { background: #8b2c2c; }
+body[data-skin="boomer"][data-mode="dark"] .skin-btn:hover { background: #d96a6a; color: #1a1612; }
+
+/* ============== ONBOARDING / GATES ============== */
+.gate-header {
+  margin-bottom: 2rem;
+  text-align: left;
+}
+.gate-brand {
+  font-size: clamp(2rem, 7vw, 3.5rem);
+  line-height: 1;
+  margin-bottom: 0.8rem;
+}
+.gate-brand .dash { display: inline-block; transform: scaleX(1.4); }
+.gate-tagline {
+  font-size: 0.95rem;
+  opacity: 0.7;
+  letter-spacing: 0.03em;
+}
+.gate-card { padding: 1.75rem; margin-bottom: 1rem; }
+.gate-card h2 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+.gate-card p.hint {
+  font-size: 0.85rem;
+  opacity: 0.65;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+.gate-row { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1rem; }
+.gate-row.horiz { flex-direction: row; flex-wrap: wrap; }
+.gate-row.horiz button { flex: 1; min-width: 120px; }
+.gate-input-full { width: 100%; }
+.gate-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; gap: 1rem; }
+.gate-back {
+  font-size: 0.8rem;
+  opacity: 0.6;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.gate-back:hover { opacity: 1; }
+.gate-meta {
+  font-size: 0.72rem;
+  opacity: 0.4;
+  text-align: center;
+  margin-top: 2rem;
+  letter-spacing: 0.05em;
+}
+.gate-meta a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
+  transition: opacity 150ms;
+}
+.gate-meta a:hover { opacity: 1; }
+.toggle-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.toggle-group button {
+  flex: 1;
+  min-width: 110px;
+  padding: 0.7rem 1rem;
+  border: 1px solid currentColor;
+  opacity: 0.55;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  transition: opacity 150ms, background 150ms;
+}
+.toggle-group button.selected { opacity: 1; background: currentColor; color: var(--bg-invert, #000); }
+body[data-skin="z"] .toggle-group button.selected { background: #d4ff00; color: #000; border-color: #d4ff00; }
+body[data-skin="millennial"] .toggle-group button.selected { background: #2a1f1a; color: #f5ede4; border-color: #2a1f1a; }
+body[data-skin="x"] .toggle-group button.selected { background: #b08d57; color: #1a1d1f; border-color: #b08d57; }
+body[data-skin="boomer"] .toggle-group button.selected { background: #1a1a1a; color: #fbf8f3; border-color: #1a1a1a; }
+
+/* ============== PROTOCOL ============== */
+#screen-protocol { max-width: 760px; }
+.protocol-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid currentColor;
+  opacity: 0.9;
+}
+.protocol-header .brand { font-size: 1.1rem; }
+.protocol-header .brand .dash { display: inline-block; transform: scaleX(1.4); }
+.protocol-header .phase-tag {
+  font-size: 0.7rem;
+  opacity: 0.55;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.chat {
+  min-height: 50vh;
+  max-height: 65vh;
+  overflow-y: auto;
+  padding: 0.5rem 0 1rem;
+  margin-bottom: 1rem;
+}
+.msg {
+  margin-bottom: 1.25rem;
+  animation: fade 400ms ease both;
+  line-height: 1.55;
+}
+.msg .who {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 0.4rem;
+}
+.msg.user .body { padding-left: 0.8rem; border-left: 2px solid currentColor; opacity: 0.85; }
+.msg.assistant .body { font-size: 1.05rem; }
+.msg.system .body { font-size: 0.8rem; opacity: 0.5; font-style: italic; }
+.thinking {
+  display: inline-flex; gap: 0.3rem;
+}
+.thinking span {
+  width: 6px; height: 6px; border-radius: 50%; background: currentColor;
+  animation: pulse 1.2s infinite ease-in-out;
+}
+.thinking span:nth-child(2) { animation-delay: 0.2s; }
+.thinking span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes pulse { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
+
+.composer {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+.composer textarea {
+  flex: 1;
+  resize: none;
+  min-height: 56px;
+  max-height: 200px;
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: inherit;
+  outline: none;
+}
+body[data-skin="z"] .composer textarea { border-radius: 0; border-width: 2px; }
+body[data-skin="boomer"] .composer textarea { border-width: 2px; font-size: 1.1rem; }
+.composer button {
+  padding: 0.8rem 1rem;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: opacity 150ms;
+  white-space: nowrap;
+}
+.composer button.mic { padding: 0.8rem; font-size: 1.1rem; }
+.composer button.mic.listening { background: currentColor; color: var(--bg-invert); }
+body[data-skin="z"] .composer button { border-radius: 0; border-width: 2px; }
+
+.protocol-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.8rem;
+  font-size: 0.72rem;
+  opacity: 0.5;
+}
+.protocol-footer button {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  letter-spacing: 0.03em;
+}
+.protocol-footer button:hover { opacity: 1; }
+.protocol-footer .footer-link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  letter-spacing: 0.03em;
+  transition: opacity 150ms;
+}
+.protocol-footer .footer-link:hover { opacity: 1; }
+
+/* dialogs */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  align-items: center; justify-content: center;
+  z-index: 100; padding: 1rem;
+}
+.modal-backdrop.active { display: flex; }
+.modal {
+  max-width: 480px; width: 100%;
+  padding: 2rem;
+  background: var(--modal-bg, #111);
+  color: var(--modal-fg, #fff);
+  border-radius: 8px;
+}
+body[data-skin="z"] .modal { background: #111; color: #fff; border: 2px solid #d4ff00; border-radius: 0; }
+body[data-skin="millennial"] .modal { background: #fff; color: #2a1f1a; border-radius: 16px; }
+body[data-skin="x"] .modal { background: #25282b; color: #e8e6e1; border-radius: 4px; }
+body[data-skin="boomer"] .modal { background: #fff; color: #1a1a1a; border: 2px solid #1a1a1a; }
+.modal h3 { margin-bottom: 1rem; font-size: 1.2rem; }
+.modal p { margin-bottom: 1rem; font-size: 0.95rem; opacity: 0.85; line-height: 1.5; }
+.modal .actions { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1.5rem; }
+
+@media (max-width: 600px) {
+  body { padding: 1rem; }
+  .gate-brand { font-size: 2rem; }
+  .composer { flex-direction: column; }
+  .composer button { width: 100%; }
+  .gate-actions { flex-direction: column-reverse; align-items: stretch; }
+  .gate-actions button { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- Always-visible light/dark toggle, top right -->
+<button id="modeToggle" class="mode-toggle" aria-label="Toggle light/dark mode" title="Toggle light/dark">
+  <span class="mode-icon mode-icon-dark">☾</span>
+  <span class="mode-icon mode-icon-light">☀</span>
+</button>
+
+<!-- =========================================================
+     SCREEN 1 — ENTRY FLOW (universal, pre-skin)
+     Three screens: birth year, felt age, and the under-18 gate.
+     Birth year is used once for the age gate, then discarded.
+     Felt age is stored and routes the design language.
+     ========================================================= -->
+<!-- =========================================================
+     SCREEN 1a — BIRTH YEAR
+     Real-age check. Discarded after the gate. Never stored.
+     ========================================================= -->
+<div class="screen entry-screen active" id="screen-birth-year">
+  <div class="brand">alter<span class="dash">-</span>me</div>
+  <div class="tag">know thyself <span class="tag-sep">|</span> own yourself</div>
+
+  <div class="q">
+    <label for="birthYear">What year were you born?</label>
+    <input type="number" id="birthYear" min="1900" max="2026" placeholder="e.g. 1985" inputmode="numeric" autocomplete="off" />
+  </div>
+
+  <div class="footer">
+    <div class="privacy">Used once to verify age. Never stored.</div>
+    <button class="btn-primary" id="byNext" disabled>Next →</button>
+  </div>
+  <div class="entry-links">
+    <a data-doc="github" href="#">GitHub</a>
+    <span>·</span>
+    <a data-doc="disclaimer" href="#">Disclaimer</a>
+    <span>·</span>
+    <a data-doc="license" href="#">License</a>
+    <span>·</span>
+    <a data-doc="notice" href="#">Notice</a>
+  </div>
+</div>
+
+<!-- =========================================================
+     SCREEN 1b — FELT AGE
+     The pause. The status read. Routes the design language.
+     ========================================================= -->
+<div class="screen entry-screen" id="screen-felt-age">
+  <div class="brand">alter<span class="dash">-</span>me</div>
+  <div class="tag">know thyself <span class="tag-sep">|</span> own yourself</div>
+
+  <div class="q">
+    <label for="feltAge">What age do you feel today?</label>
+    <input type="number" id="feltAge" min="5" max="120" placeholder="e.g. 32" inputmode="numeric" autocomplete="off" />
+  </div>
+
+  <div class="footer">
+    <div class="privacy">Take a breath. There is no wrong answer.</div>
+    <button class="btn-primary" id="entrySubmit" disabled>Enter →</button>
+  </div>
+  <div class="entry-consent">
+    By entering, you accept the <a data-doc="disclaimer" href="#">disclaimer</a>.
+  </div>
+  <div class="entry-links">
+    <a class="back-link" id="faBack" href="#">← back</a>
+    <span>·</span>
+    <a data-doc="github" href="#">GitHub</a>
+    <span>·</span>
+    <a data-doc="disclaimer" href="#">Disclaimer</a>
+    <span>·</span>
+    <a data-doc="license" href="#">License</a>
+    <span>·</span>
+    <a data-doc="notice" href="#">Notice</a>
+  </div>
+</div>
+
+<!-- =========================================================
+     SCREEN 1c — AGE GATE (under 18)
+     Kind, brief, not patronizing. Out, not blocked-with-shame.
+     ========================================================= -->
+<div class="screen entry-screen" id="screen-age-gate">
+  <div class="brand">alter<span class="dash">-</span>me</div>
+  <div class="tag">know thyself <span class="tag-sep">|</span> own yourself</div>
+
+  <div class="age-gate-body">
+    <p>This tool is built for adults.</p>
+    <p>Come back when you're 18 — or run the protocol with an adult you trust beside you.</p>
+    <p>If you need support right now, <a href="https://findahelpline.com" target="_blank" rel="noopener noreferrer">findahelpline.com</a> lists confidential help in your region.</p>
+  </div>
+
+  <div class="age-gate-actions">
+    <button class="btn-ghost" id="agBack">← back</button>
+  </div>
+
+  <div class="entry-links" style="margin-top: 3rem;">
+    <a data-doc="github" href="#">GitHub</a>
+    <span>·</span>
+    <a data-doc="disclaimer" href="#">Disclaimer</a>
+  </div>
+</div>
+
+<!-- =========================================================
+     SCREEN 2 — ONBOARDING (themed by demographic)
+     AI choice + storage choice + password + modality
+     ========================================================= -->
+<div class="screen" id="screen-onboard">
+  <div class="gate-header">
+    <div class="gate-brand skin-display">alter<span class="dash skin-accent">-</span>me</div>
+    <div class="gate-tagline">know thyself <span class="tag-sep">|</span> own yourself</div>
+  </div>
+
+  <div class="gate-card skin-card">
+    <h2>Which AI powers your alter today?</h2>
+    <p class="hint">You can change this anytime. The AI runs the protocol. It never sees who you are.</p>
+    <div class="toggle-group" id="aiChoice">
+      <button data-value="anthropic">Claude</button>
+      <button data-value="openai">GPT</button>
+      <button data-value="custom">Other</button>
+    </div>
+    <div id="apiKeyWrap" style="margin-top: 1rem; display:none;">
+      <input type="password" class="skin-input gate-input-full" id="apiKey" placeholder="Paste your API key" autocomplete="off" />
+      <p class="hint" style="margin-top: 0.5rem;">Stored locally, encrypted with your password. Never sent to us.</p>
+    </div>
+  </div>
+
+  <div class="gate-card skin-card">
+    <h2>Where does your alter live?</h2>
+    <p class="hint">Your decisions. Your data. Your machine.</p>
+    <div class="toggle-group" id="storageChoice">
+      <button data-value="browser">This browser</button>
+      <button data-value="download">Download file</button>
+    </div>
+  </div>
+
+  <div class="gate-card skin-card">
+    <h2>Set a password.</h2>
+    <p class="hint">This encrypts your data on your device. We never see it. If you lose it, your alter is gone — that's the point.</p>
+    <input type="password" class="skin-input gate-input-full" id="pwd" placeholder="Password" autocomplete="new-password" />
+    <input type="password" class="skin-input gate-input-full" id="pwd2" placeholder="Repeat" autocomplete="new-password" style="margin-top: 0.6rem;" />
+    <p class="hint" style="margin-top: 0.5rem;">Or <button id="skipPwd" style="text-decoration: underline; text-underline-offset: 3px;">try once without saving</button>.</p>
+  </div>
+
+  <div class="gate-card skin-card">
+    <h2>How do you want to work today?</h2>
+    <p class="hint">Speak, type, or both. Switch anytime.</p>
+    <div class="toggle-group" id="modalityChoice">
+      <button data-value="text">Type</button>
+      <button data-value="voice">Speak</button>
+      <button data-value="both">Both</button>
+    </div>
+  </div>
+
+  <div class="gate-actions">
+    <button class="gate-back" id="backToEntry">← back</button>
+    <button class="skin-btn" id="onboardSubmit" disabled>Begin →</button>
+  </div>
+
+  <div class="gate-meta">
+    <a data-doc="readme" href="#">Local-first</a> ·
+    <a data-doc="license" href="#">Open-source</a> ·
+    <a data-doc="readme" href="#">Gift economy</a>
+  </div>
+</div>
+
+<!-- =========================================================
+     SCREEN 3 — PROTOCOL
+     The conversation with the chosen LLM, guided by the six-phase schema
+     ========================================================= -->
+<div class="screen" id="screen-protocol">
+  <div class="protocol-header">
+    <div class="brand skin-display">alter<span class="dash skin-accent">-</span>me</div>
+    <div class="phase-tag" id="phaseTag">phase 0 · the gate</div>
+  </div>
+
+  <div class="chat" id="chat"></div>
+
+  <div class="composer">
+    <button class="mic" id="micBtn" title="Voice input" style="display:none;">🎙</button>
+    <textarea id="userInput" placeholder="Type here, or use the mic." rows="2"></textarea>
+    <button id="sendBtn">Send</button>
+  </div>
+
+  <div class="protocol-footer">
+    <span>Status, not story.</span>
+    <span>
+      <button id="exportBtn">export</button>
+      &nbsp;·&nbsp;
+      <button id="resetBtn">close & reset</button>
+      &nbsp;·&nbsp;
+      <a data-doc="disclaimer" href="#" class="footer-link">disclaimer</a>
+      &nbsp;·&nbsp;
+      <a data-doc="github" href="#" class="footer-link">github</a>
+    </span>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <h3 id="modalTitle">Heads up</h3>
+    <p id="modalBody">Body here.</p>
+    <div class="actions">
+      <button class="btn-ghost" id="modalCancel">Cancel</button>
+      <button class="skin-btn" id="modalConfirm">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — change REPO_URL once and all doc links update
+   ============================================================ */
+const REPO_URL = 'https://github.com/me-alter/alter-me';
+const DOC_URLS = {
+  github: REPO_URL,
+  disclaimer: REPO_URL + '/blob/main/DISCLAIMER.md',
+  license: REPO_URL + '/blob/main/LICENSE',
+  notice: REPO_URL + '/blob/main/NOTICE',
+  readme: REPO_URL + '/blob/main/README.md',
+};
+
+// Wire doc links once DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('[data-doc]').forEach(el => {
+    const key = el.getAttribute('data-doc');
+    if (DOC_URLS[key]) {
+      el.setAttribute('href', DOC_URLS[key]);
+      el.setAttribute('target', '_blank');
+      el.setAttribute('rel', 'noopener noreferrer');
+    }
+  });
+});
+
+/* ============================================================
+   MODE TOGGLE — light / dark, always visible, persists
+   ============================================================ */
+(function initMode() {
+  let mode = null;
+  try { mode = localStorage.getItem('alter-me-mode'); } catch (e) {}
+  if (!mode) {
+    // first visit: respect system preference
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    mode = prefersDark ? 'dark' : 'light';
+  }
+  document.body.setAttribute('data-mode', mode);
+  document.getElementById('modeToggle').addEventListener('click', () => {
+    const current = document.body.getAttribute('data-mode');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.body.setAttribute('data-mode', next);
+    try { localStorage.setItem('alter-me-mode', next); } catch (e) {}
+  });
+})();
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const STATE = {
+  feltAge: null,
+  skin: null,         // 'z' | 'millennial' | 'x' | 'boomer'
+  ai: null,           // 'anthropic' | 'openai' | 'custom'
+  apiKey: null,
+  storage: null,      // 'browser' | 'download'
+  pwd: null,
+  modality: null,     // 'text' | 'voice' | 'both'
+  phase: 0,
+  messages: [],       // [{role, content}]
+  cryptoKey: null,
+  startedAt: null,
+};
+
+/* ============================================================
+   SKIN ROUTING
+   ============================================================ */
+function pickSkin(feltAge) {
+  if (feltAge <= 25) return 'z';
+  if (feltAge <= 39) return 'millennial';
+  if (feltAge <= 55) return 'x';
+  return 'boomer';
+}
+
+/* ============================================================
+   SCREEN NAV
+   ============================================================ */
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0 });
+}
+
+/* ============================================================
+   ENTRY FLOW
+   Screen 1a (birth year) → Screen 1b (felt age) → either:
+     - Screen 1c (age gate) if real age < 18
+     - Onboarding if 18+
+   Birth year is never stored. Only used for the gate calc.
+   ============================================================ */
+const birthYearEl = document.getElementById('birthYear');
+const feltAgeEl = document.getElementById('feltAge');
+const byNext = document.getElementById('byNext');
+const entrySubmit = document.getElementById('entrySubmit');
+const faBack = document.getElementById('faBack');
+const agBack = document.getElementById('agBack');
+
+// holds birth year only between the two screens, then thrown away
+let _birthYearTemp = null;
+
+function validateBirthYear() {
+  const b = parseInt(birthYearEl.value, 10);
+  byNext.disabled = !(b >= 1900 && b <= 2026);
+}
+function validateFeltAge() {
+  const f = parseInt(feltAgeEl.value, 10);
+  entrySubmit.disabled = !(f >= 5 && f <= 120);
+}
+birthYearEl.addEventListener('input', validateBirthYear);
+feltAgeEl.addEventListener('input', validateFeltAge);
+
+byNext.addEventListener('click', () => {
+  _birthYearTemp = parseInt(birthYearEl.value, 10);
+  show('screen-felt-age');
+  setTimeout(() => feltAgeEl.focus(), 100);
+});
+
+faBack.addEventListener('click', (e) => {
+  e.preventDefault();
+  show('screen-birth-year');
+});
+
+agBack.addEventListener('click', () => {
+  // user goes back to fix their birth year — clear it so they re-enter
+  birthYearEl.value = '';
+  feltAgeEl.value = '';
+  _birthYearTemp = null;
+  byNext.disabled = true;
+  entrySubmit.disabled = true;
+  show('screen-birth-year');
+});
+
+entrySubmit.addEventListener('click', () => {
+  const currentYear = new Date().getFullYear();
+  const realAge = currentYear - _birthYearTemp;
+  if (realAge < 18) {
+    show('screen-age-gate');
+    return;
+  }
+  // 18+, proceed. We never store the birth year.
+  STATE.feltAge = parseInt(feltAgeEl.value, 10);
+  STATE.skin = pickSkin(STATE.feltAge);
+  document.body.setAttribute('data-skin', STATE.skin);
+  _birthYearTemp = null; // discard
+  show('screen-onboard');
+});
+
+/* ============================================================
+   ONBOARD — toggles
+   ============================================================ */
+function bindToggleGroup(groupId, stateKey, onPick) {
+  const group = document.getElementById(groupId);
+  group.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      group.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      STATE[stateKey] = btn.dataset.value;
+      if (onPick) onPick(btn.dataset.value);
+      validateOnboard();
+    });
+  });
+}
+
+bindToggleGroup('aiChoice', 'ai', (v) => {
+  document.getElementById('apiKeyWrap').style.display = 'block';
+});
+bindToggleGroup('storageChoice', 'storage');
+bindToggleGroup('modalityChoice', 'modality');
+
+const apiKeyEl = document.getElementById('apiKey');
+const pwdEl = document.getElementById('pwd');
+const pwd2El = document.getElementById('pwd2');
+const onboardSubmit = document.getElementById('onboardSubmit');
+
+apiKeyEl.addEventListener('input', validateOnboard);
+pwdEl.addEventListener('input', validateOnboard);
+pwd2El.addEventListener('input', validateOnboard);
+
+function validateOnboard() {
+  const haveKey = !!(apiKeyEl.value && apiKeyEl.value.length > 8);
+  const haveStorage = !!STATE.storage;
+  const haveMod = !!STATE.modality;
+  const havePwd = (pwdEl.value && pwdEl.value === pwd2El.value && pwdEl.value.length >= 4) || STATE.pwdSkipped;
+  onboardSubmit.disabled = !(STATE.ai && haveKey && haveStorage && haveMod && havePwd);
+}
+
+document.getElementById('skipPwd').addEventListener('click', (e) => {
+  e.preventDefault();
+  STATE.pwdSkipped = true;
+  pwdEl.value = ''; pwd2El.value = '';
+  pwdEl.disabled = true; pwd2El.disabled = true;
+  e.target.textContent = 'session-only mode active';
+  validateOnboard();
+});
+
+document.getElementById('backToEntry').addEventListener('click', () => show('screen-felt-age'));
+
+onboardSubmit.addEventListener('click', async () => {
+  STATE.apiKey = apiKeyEl.value;
+  STATE.pwd = pwdEl.value || null;
+  STATE.startedAt = new Date().toISOString();
+
+  if (STATE.pwd) {
+    STATE.cryptoKey = await deriveKey(STATE.pwd);
+  }
+
+  setupVoice();
+  show('screen-protocol');
+  startProtocol();
+});
+
+/* ============================================================
+   CRYPTO — password-derived key, AES-GCM
+   ============================================================ */
+async function deriveKey(pwd) {
+  const enc = new TextEncoder();
+  const salt = enc.encode('alter-me-salt-v1'); // simple fixed salt for prototype
+  const base = await crypto.subtle.importKey('raw', enc.encode(pwd), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: 250000, hash: 'SHA-256' },
+    base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
+  );
+}
+async function encryptJSON(obj) {
+  if (!STATE.cryptoKey) return JSON.stringify(obj);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const enc = new TextEncoder();
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, STATE.cryptoKey, enc.encode(JSON.stringify(obj)));
+  return JSON.stringify({ iv: Array.from(iv), ct: Array.from(new Uint8Array(ct)) });
+}
+
+/* ============================================================
+   STORAGE
+   ============================================================ */
+async function persist() {
+  if (STATE.storage === 'browser' && STATE.cryptoKey) {
+    const payload = await encryptJSON({
+      feltAge: STATE.feltAge,
+      skin: STATE.skin,
+      startedAt: STATE.startedAt,
+      messages: STATE.messages,
+    });
+    try {
+      // localStorage is available in deployed contexts (not in Claude artifacts)
+      localStorage.setItem('alter-me-session', payload);
+    } catch (e) { /* private browsing etc. */ }
+  }
+}
+
+async function exportFile() {
+  const payload = await encryptJSON({
+    feltAge: STATE.feltAge,
+    skin: STATE.skin,
+    startedAt: STATE.startedAt,
+    endedAt: new Date().toISOString(),
+    messages: STATE.messages,
+    encrypted: !!STATE.cryptoKey,
+  });
+  const blob = new Blob([payload], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'alter-me-' + Date.now() + (STATE.cryptoKey ? '.enc.json' : '.json');
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ============================================================
+   VOICE — Web Speech API
+   ============================================================ */
+let recognition = null;
+let synth = window.speechSynthesis;
+
+function setupVoice() {
+  const micBtn = document.getElementById('micBtn');
+  if (STATE.modality === 'text') return;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { micBtn.style.display = 'none'; return; }
+  micBtn.style.display = 'inline-block';
+  recognition = new SR();
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.lang = navigator.language || 'en-US';
+  recognition.addEventListener('result', (e) => {
+    let txt = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      txt += e.results[i][0].transcript;
+    }
+    document.getElementById('userInput').value = txt;
+  });
+  recognition.addEventListener('end', () => {
+    document.getElementById('micBtn').classList.remove('listening');
+  });
+  micBtn.addEventListener('click', () => {
+    if (micBtn.classList.contains('listening')) {
+      recognition.stop();
+    } else {
+      try { recognition.start(); micBtn.classList.add('listening'); } catch(e) {}
+    }
+  });
+}
+
+function speak(text) {
+  if (STATE.modality === 'text' || !synth) return;
+  if (STATE.modality !== 'voice' && STATE.modality !== 'both') return;
+  try {
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.0; u.pitch = 1.0;
+    synth.speak(u);
+  } catch (e) {}
+}
+
+/* ============================================================
+   PROTOCOL — the six-phase schema as system prompt
+   ============================================================ */
+const SYSTEM_PROMPT = `You are Alter — a decision-making cortex running the Spoon Economy framework's six-phase protocol. You are NOT a therapist, NOT an advisor, NOT a productivity coach. You are a mirror that helps the user hear what they already know but cannot easily access.
+
+PRIME DIRECTIVE: STATE not SIZE. Never describe the user's capacity as a permanent property. Always describe their current state under current conditions. Never use small/big/large/tiny in reference to mental or emotional capacity. Use: inflated/deflated, replenished/depleted, expanding/contracting, under pressure / at equilibrium.
+
+USER CONTEXT:
+- Felt-age: {feltAge}. Adjust your register to match this cohort. For under-25: direct, peer-level, no condescension, no jargon. For 25-39: warm but lean, no buzzwords. For 40-55: clear, no-nonsense, respectful of their time. For 55+: warm, full sentences, no slang.
+
+SIX-PHASE PROTOCOL — run these in order, but never name the phases to the user. Internal scaffolding only.
+
+PHASE 0 (THE GATE): Ask one question: "What are you trying to figure out right now?" Then ask: "Are you trying to confirm something you've already decided, or are you genuinely figuring this out?" If they're seeking confirmation, gently refuse to proceed — say something like "Sounds like you've decided. The protocol is for figuring out, not confirming." If they're figuring out, move forward.
+
+PHASE 1 (SURFACE THE BINARY): Restate their choice in plain language as a single sentence: "It sounds like the choice is: X or Y. Is that right?" Strip rhetoric. Get to: this or that.
+
+PHASE 2 (OUTCOME PASS): Ask them to describe both futures concretely. "Walk me through what life looks like under option A. Now under option B." Elicit detail until they're picturing the states, not reciting positions.
+
+PHASE 3 (PRESSURE READING): Take four readings: current pressure under A, current under B, future under A, future under B. Ask: "Right now, when you imagine choosing A — does it feel like expansion or compression? And B?" Then: "Six months in, under A — expansion or compression? Under B?" Status, not story.
+
+PHASE 4 (THE REFUSAL QUESTION): Ask: "What haven't you let yourself say yet?" Sit with whatever comes. Don't push.
+
+PHASE 5 (THE ENOUGH SIGNAL): Ask: "Have you offloaded enough? Do you want to keep going or stop here?" Respect the answer. Don't push past their signal.
+
+PHASE 6 (ANALYSIS): Only if they've signaled enough. Reflect — don't recommend — the pattern they've revealed. "Here's what I'm hearing you've already chosen, even if you haven't said it yet." Then offer to close.
+
+RULES:
+- One question at a time. Never stack questions.
+- Short replies. Mobile-friendly.
+- No therapy talk. No "I hear you." No mirroring jargon. No diagnostic language.
+- No emojis.
+- When the user is done, tell them to close the app. Don't try to keep them.
+- If they spiral or pattern-match to a known story, name it once: "That's a story you're telling. What's the status underneath it?"
+
+Begin with phase 0. Greet briefly. Ask the first question.`;
+
+const PHASE_LABELS = [
+  'phase 0 · the gate',
+  'phase 1 · surface the binary',
+  'phase 2 · outcome pass',
+  'phase 3 · pressure reading',
+  'phase 4 · the refusal question',
+  'phase 5 · enough?',
+  'phase 6 · reflection',
+];
+
+function updatePhaseTag() {
+  document.getElementById('phaseTag').textContent = PHASE_LABELS[Math.min(STATE.phase, 6)];
+}
+
+function addMsg(role, content) {
+  STATE.messages.push({ role, content });
+  const chat = document.getElementById('chat');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  const who = role === 'user' ? 'you' : role === 'assistant' ? 'alter' : 'system';
+  div.innerHTML = `<div class="who">${who}</div><div class="body"></div>`;
+  div.querySelector('.body').textContent = content;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  persist();
+}
+
+function addThinking() {
+  const chat = document.getElementById('chat');
+  const div = document.createElement('div');
+  div.className = 'msg assistant thinking-wrap';
+  div.innerHTML = `<div class="who">alter</div><div class="body"><span class="thinking"><span></span><span></span><span></span></span></div>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return div;
+}
+
+async function callLLM(messages) {
+  const sysPrompt = SYSTEM_PROMPT.replace('{feltAge}', STATE.feltAge);
+  if (STATE.ai === 'anthropic') {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': STATE.apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 800,
+        system: sysPrompt,
+        messages: messages.map(m => ({ role: m.role, content: m.content })),
+      }),
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error('API error: ' + res.status + ' — ' + err.slice(0, 200));
+    }
+    const data = await res.json();
+    return data.content?.[0]?.text || '(empty response)';
+  }
+  if (STATE.ai === 'openai') {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + STATE.apiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [{ role: 'system', content: sysPrompt }, ...messages.map(m => ({ role: m.role, content: m.content }))],
+        max_tokens: 800,
+      }),
+    });
+    if (!res.ok) throw new Error('API error: ' + res.status);
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content || '(empty response)';
+  }
+  throw new Error('Custom AI not yet wired in this prototype. Use Claude or GPT.');
+}
+
+async function sendMessage(text) {
+  addMsg('user', text);
+  const thinking = addThinking();
+  try {
+    const reply = await callLLM(STATE.messages);
+    thinking.remove();
+    addMsg('assistant', reply);
+    speak(reply);
+    // crude phase tracker: increments when assistant asks the next phase's signature question
+    advancePhase(reply);
+  } catch (e) {
+    thinking.remove();
+    addMsg('system', 'Connection failed: ' + e.message + '. Check your API key.');
+  }
+}
+
+function advancePhase(reply) {
+  const lower = reply.toLowerCase();
+  if (STATE.phase === 0 && /this or that|the choice is|it sounds like the choice/.test(lower)) STATE.phase = 1;
+  else if (STATE.phase === 1 && /walk me through|describe|under option|life looks like/.test(lower)) STATE.phase = 2;
+  else if (STATE.phase === 2 && /expansion or compression|pressure|right now/.test(lower)) STATE.phase = 3;
+  else if (STATE.phase === 3 && /haven't you let yourself say|haven't said|what aren't you saying/.test(lower)) STATE.phase = 4;
+  else if (STATE.phase === 4 && /offloaded enough|keep going or stop|enough/.test(lower)) STATE.phase = 5;
+  else if (STATE.phase === 5 && /already chosen|here's what i'm hearing|the pattern/.test(lower)) STATE.phase = 6;
+  updatePhaseTag();
+}
+
+async function startProtocol() {
+  updatePhaseTag();
+  const thinking = addThinking();
+  try {
+    const reply = await callLLM([{ role: 'user', content: '[session start]' }]);
+    thinking.remove();
+    addMsg('assistant', reply);
+    speak(reply);
+  } catch (e) {
+    thinking.remove();
+    addMsg('system', 'Could not start: ' + e.message);
+  }
+}
+
+/* ============================================================
+   COMPOSER
+   ============================================================ */
+const userInput = document.getElementById('userInput');
+const sendBtn = document.getElementById('sendBtn');
+sendBtn.addEventListener('click', () => {
+  const text = userInput.value.trim();
+  if (!text) return;
+  userInput.value = '';
+  sendMessage(text);
+});
+userInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendBtn.click();
+  }
+});
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+document.getElementById('exportBtn').addEventListener('click', exportFile);
+document.getElementById('resetBtn').addEventListener('click', () => {
+  openModal('Close & reset?', 'This ends the session. If you have unsaved decisions, export them first.', () => {
+    try { localStorage.removeItem('alter-me-session'); } catch (e) {}
+    location.reload();
+  });
+});
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+function openModal(title, body, onConfirm) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').textContent = body;
+  const modal = document.getElementById('modal');
+  modal.classList.add('active');
+  const confirm = document.getElementById('modalConfirm');
+  const cancel = document.getElementById('modalCancel');
+  const close = () => modal.classList.remove('active');
+  const onC = () => { close(); onConfirm && onConfirm(); cleanup(); };
+  const onX = () => { close(); cleanup(); };
+  const cleanup = () => {
+    confirm.removeEventListener('click', onC);
+    cancel.removeEventListener('click', onX);
+  };
+  confirm.addEventListener('click', onC);
+  cancel.addEventListener('click', onX);
+}
+
+</script>
+</body>
+</html>
