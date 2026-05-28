@@ -278,7 +278,7 @@ body[data-direction="learn"][data-mode="light"][data-session-count="many"] {
   background: radial-gradient(ellipse at center, #f6f4ee 0%, #ecebe5 80%);
 }
 
-/* ============== FINGERPRINT PULSE ============== */
+/* ============== FINGERPRINT — generative cellular automaton ============== */
 .fingerprint {
   position: fixed;
   bottom: 1rem;
@@ -286,29 +286,41 @@ body[data-direction="learn"][data-mode="light"][data-session-count="many"] {
   transform: translateX(-50%);
   width: 80px;
   height: 80px;
-  pointer-events: none;
   z-index: 50;
-  opacity: 0.45;
-  transition: opacity 300ms;
+  opacity: 0.55;
+  transition: opacity 300ms, transform 300ms;
+  cursor: pointer;
 }
-.fingerprint:hover { opacity: 0.8; }
-.fingerprint svg { width: 100%; height: 100%; display: block; }
-.fingerprint circle.pulse {
-  fill: none;
-  stroke: var(--fg, currentColor);
-  stroke-width: 1;
-  transform-origin: center;
-  animation: pulse-ring 2.8s ease-in-out infinite;
+.fingerprint:hover { opacity: 1; transform: translateX(-50%) scale(1.05); }
+.fingerprint canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated; /* keep low-rez crisp at the start */
+  image-rendering: crisp-edges;
 }
-.fingerprint circle.pulse:nth-child(2) { animation-delay: 0.5s; }
-.fingerprint circle.pulse:nth-child(3) { animation-delay: 1.0s; }
-.fingerprint circle.core {
-  fill: var(--fg, currentColor);
-  opacity: 0.85;
+/* the breathing glow — same fingerprint pattern, rendered at slower rates */
+.fingerprint::before,
+.fingerprint::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 4px;
+  background: var(--fg, currentColor);
+  opacity: 0;
+  filter: blur(8px);
+  pointer-events: none;
+  animation: fp-breathe 4.2s ease-in-out infinite;
 }
-@keyframes pulse-ring {
-  0% { r: 4; opacity: 0.8; }
-  100% { r: 32; opacity: 0; }
+.fingerprint::after {
+  inset: -14px;
+  filter: blur(14px);
+  animation-duration: 7.8s;
+  animation-delay: -2s;
+}
+@keyframes fp-breathe {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.14; }
 }
 /* hide fingerprint on master landing — first impression should be clean */
 body[data-screen="landing"] .fingerprint { display: none; }
@@ -890,14 +902,9 @@ body[data-skin="boomer"] .modal { background: #fff; color: #1a1a1a; border: 2px 
   <button class="mode-opt" data-mode="dark">dark</button>
 </div>
 
-<!-- Persistent fingerprint pulse — your encryption rendering itself -->
-<div class="fingerprint" id="fingerprint" title="Your encryption fingerprint">
-  <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-    <circle class="pulse" cx="40" cy="40" r="4"></circle>
-    <circle class="pulse" cx="40" cy="40" r="4"></circle>
-    <circle class="pulse" cx="40" cy="40" r="4"></circle>
-    <circle class="core" cx="40" cy="40" r="3"></circle>
-  </svg>
+<!-- Persistent fingerprint pulse — your encryption rendering itself as a 1D cellular automaton -->
+<div class="fingerprint" id="fingerprint" title="Your encryption fingerprint — tap to learn">
+  <canvas id="fingerprintCanvas" width="80" height="80"></canvas>
 </div>
 
 <!-- Persistent learn/decide switcher (shown only after master landing) -->
@@ -1314,6 +1321,7 @@ const STATE = {
   learnMessages: [],
   // entropy state — folded into encryption key over time
   entropyHash: null,     // hex string, accumulates with each session
+  seedHash: null,        // hex string of FIRST session — your fingerprint origin
   sessionCount: 0,       // total completed sessions
 };
 
@@ -2033,7 +2041,14 @@ async function foldEntropy(newText) {
   const base = (STATE.entropyHash || '') + '||' + (newText || '');
   STATE.entropyHash = await sha256Hex(base);
   STATE.sessionCount = (STATE.sessionCount || 0) + 1;
-  updateFingerprint();
+  // Capture the seed on the very first session — this is your origin.
+  // Permanent once set. To change it, the user would have to explicitly
+  // regenerate identity (future feature; would require re-encrypting all
+  // stored data under a new key derived from the new seed).
+  if (!STATE.seedHash) {
+    STATE.seedHash = STATE.entropyHash;
+  }
+  renderFingerprint();
   persistEntropy();
   return STATE.entropyHash;
 }
@@ -2042,6 +2057,7 @@ function persistEntropy() {
   try {
     localStorage.setItem('alter-me-entropy', JSON.stringify({
       hash: STATE.entropyHash,
+      seed: STATE.seedHash,
       count: STATE.sessionCount,
     }));
   } catch (e) {}
@@ -2053,40 +2069,145 @@ function loadEntropy() {
     if (raw) {
       const data = JSON.parse(raw);
       STATE.entropyHash = data.hash || null;
+      STATE.seedHash = data.seed || null;
       STATE.sessionCount = data.count || 0;
-      updateFingerprint();
+      renderFingerprint();
     }
   } catch (e) {}
 }
 
 /* ============================================================
-   FINGERPRINT — pulse rhythm reflects accumulated entropy.
-   More sessions = more complex pulse + (on learn side) richer bg
+   FINGERPRINT RENDERER — Wolfram Rule 30 cellular automaton
+
+   The seed (your first session's hash) becomes the initial row.
+   Rule 30 is deterministic but chaotic — same seed always yields
+   the same pattern, but a single bit difference yields an entirely
+   different texture.
+
+   Session count determines render depth:
+   - 0 sessions: a single black square (low-res, primordial)
+   - 1 session: 8x8 cells from a small seed slice
+   - 2 sessions: 12x12
+   - 3+ sessions: 16x16
+   - 5+: 24x24
+   - 10+: 32x32 (the canvas is 80px so each cell stays visible)
    ============================================================ */
-function updateFingerprint() {
-  const fp = document.getElementById('fingerprint');
-  if (!fp) return;
-  // map sessionCount to a category that drives CSS
+function hexToBits(hex, numBits) {
+  // Convert a hex string to a bit array of length numBits.
+  // Pads or truncates as needed. Used to seed the automaton.
+  const bits = [];
+  for (let i = 0; i < hex.length && bits.length < numBits; i++) {
+    const v = parseInt(hex[i], 16);
+    if (isNaN(v)) continue;
+    for (let b = 3; b >= 0 && bits.length < numBits; b--) {
+      bits.push((v >> b) & 1);
+    }
+  }
+  while (bits.length < numBits) bits.push(0);
+  return bits;
+}
+
+// Rule 30: for each cell, look at (left, self, right) and apply the rule.
+// 111->0, 110->0, 101->0, 100->1, 011->1, 010->1, 001->1, 000->0
+// Binary: 00011110 = 30
+function rule30Step(row) {
+  const n = row.length;
+  const next = new Array(n);
+  for (let i = 0; i < n; i++) {
+    const l = row[(i - 1 + n) % n];
+    const c = row[i];
+    const r = row[(i + 1) % n];
+    const pattern = (l << 2) | (c << 1) | r;
+    next[i] = (30 >> pattern) & 1;
+  }
+  return next;
+}
+
+function renderFingerprint() {
+  const canvas = document.getElementById('fingerprintCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = 80, H = 80;
+  canvas.width = W;
+  canvas.height = H;
+
+  // Choose grid resolution based on session count.
   const c = STATE.sessionCount;
-  let bucket = '0';
-  if (c >= 10) bucket = 'many';
-  else if (c >= 3) bucket = '3';
-  else if (c >= 2) bucket = '2';
-  else if (c >= 1) bucket = '1';
-  document.body.setAttribute('data-session-count', bucket);
-  // adjust pulse speed: more sessions, slightly faster rhythm
-  const pulses = fp.querySelectorAll('circle.pulse');
-  const baseSpeed = Math.max(1.4, 2.8 - (c * 0.15));
-  pulses.forEach((p, i) => {
-    p.style.animationDuration = baseSpeed.toFixed(2) + 's';
-  });
-  // adjust core dot size to reflect accumulated entropy
-  const core = fp.querySelector('circle.core');
-  if (core) {
-    const r = Math.min(8, 3 + c * 0.5);
-    core.setAttribute('r', r.toFixed(1));
+  let grid;
+  if (c === 0)       grid = 1;   // primordial — one square
+  else if (c < 2)    grid = 8;
+  else if (c < 3)    grid = 12;
+  else if (c < 5)    grid = 16;
+  else if (c < 10)   grid = 24;
+  else if (c < 20)   grid = 32;
+  else               grid = 40;
+
+  const cellSize = Math.floor(W / grid);
+  const offset = Math.floor((W - cellSize * grid) / 2);
+
+  // resolve current colors from CSS vars
+  const fg = getComputedStyle(document.body).getPropertyValue('--fg').trim() || '#fff';
+  const bg = getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#000';
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  if (grid === 1) {
+    // primordial state: single solid square in the center
+    ctx.fillStyle = fg;
+    const s = Math.floor(W * 0.4);
+    const o = Math.floor((W - s) / 2);
+    ctx.fillRect(o, o, s, s);
+    return;
+  }
+
+  // Seed the initial row from the seedHash. If somehow there's no seed yet,
+  // fall back to a single center-cell-on row (the canonical Rule 30 seed).
+  let row;
+  if (STATE.seedHash) {
+    row = hexToBits(STATE.seedHash, grid);
+    // ensure the row isn't all zeros — if it is, plant a center cell
+    if (!row.some(b => b === 1)) row[Math.floor(grid / 2)] = 1;
+  } else {
+    row = new Array(grid).fill(0);
+    row[Math.floor(grid / 2)] = 1;
+  }
+
+  // Iterate the automaton, drawing each generation as the next row
+  ctx.fillStyle = fg;
+  for (let gen = 0; gen < grid; gen++) {
+    for (let i = 0; i < grid; i++) {
+      if (row[i]) {
+        ctx.fillRect(offset + i * cellSize, offset + gen * cellSize, cellSize, cellSize);
+      }
+    }
+    row = rule30Step(row);
   }
 }
+
+// Re-render the fingerprint when mode flips, so the colors update
+const _modeObserver = new MutationObserver(() => renderFingerprint());
+if (document.body) _modeObserver.observe(document.body, { attributes: true, attributeFilter: ['data-mode'] });
+
+// Tap the fingerprint to learn what it is
+document.addEventListener('DOMContentLoaded', () => {
+  const fp = document.getElementById('fingerprint');
+  if (!fp) return;
+  fp.addEventListener('click', () => {
+    // Set up the learn-side encryption concept and route there
+    STATE.learnConcept = 'encryption';
+    setDirection('learn');
+    if (STATE.ai && STATE.apiKey) {
+      startLearnSession();
+    } else {
+      show('screen-learn-entry');
+      // pre-select the encryption concept and unlock the begin button
+      document.querySelectorAll('.lc-concept').forEach(b => {
+        b.classList.toggle('selected', b.getAttribute('data-concept') === 'encryption');
+      });
+      validateLearnBegin();
+    }
+  });
+});
 
 /* ============================================================
    LEARN SIDE — concept selection + explanation generation
@@ -2099,8 +2220,35 @@ const LEARN_CONCEPTS = {
   'three-channels': 'the three channels of privilege deployment (self-soothing, self-awareness, safe expression)',
   'acclimatization': 'acclimatization (how the balloon\'s range expands or contracts over time)',
   'center-periphery': 'center and periphery (how the scatter chart works — density vs. dispersion)',
-  'encryption': 'how your data stays yours (local-first storage and entropy-folded encryption)',
+  'encryption': 'how your data stays yours — the evolving encryption fingerprint',
   'whole-thing': 'the whole framework, end to end',
+};
+
+// Detailed canonical explanations for concepts where precision matters.
+// These supplement the framework summary in the system prompt — they make
+// sure the LLM doesn't have to improvise on the mechanism.
+const CONCEPT_DEEP_NOTES = {
+  'encryption': `
+EVOLVING ENCRYPTION FINGERPRINT — the canonical explanation:
+
+Most apps protect your data with a static password. If someone steals your password, they have your data. Forever. Done.
+
+Alter does something different. Your encryption key isn't just your password — it's your password mixed with a running hash of your actual decisions. Every time you use the protocol (or work through a concept on the learn side), the text of that session gets cryptographically hashed and folded into the salt used to derive your encryption key. The hash is cumulative: session 2 includes session 1, session 3 includes everything before it, and so on.
+
+Mechanically: SHA-256 of (previous hash + new session content) → cumulative entropy hash → folded into PBKDF2 salt → used to derive the AES-GCM key that encrypts your data. All of this happens in your browser. The hash never leaves your device.
+
+What this means practically:
+- Your encryption key strengthens with use. The more sessions you run, the more unique your key becomes, because no one else has your specific decision trajectory.
+- Even if your static password leaked, an attacker still couldn't decrypt your past sessions without also knowing the full sequence of your responses — and that's a moving target.
+- You become harder to breach because you're not a fixed credential. You're a pattern in motion.
+
+The visible fingerprint at the bottom of the screen renders all of this. It's a 1D cellular automaton — Wolfram's Rule 30 — seeded from the hash of your very first session. That first hash is your origin and stays fixed. The grid resolution grows with use: it starts as a single low-resolution square (one black cell, primordial), and as you accumulate sessions it unfurls into a 16x16 grid, then 24x24, then 32x32 and beyond. Rule 30 is deterministic but chaotic — same seed always produces the same pattern, but a single-bit change yields entirely different texture. So no two users have the same fingerprint, and your pattern is genuinely irreproducible without your first session.
+
+You can outgrow this. If you ever want to regenerate your identity — new password, new seed, different rendering — you can export your old encrypted data, re-encrypt it under a new key, and start fresh. It's a real cost, deliberately so. Meaningful identity change shouldn't be frictionless.
+
+The deeper move: the framework treats you as a substrate that runs a pump under altitude, not as a fixed entity with a fixed size. The encryption mirrors that. You're not a static identity to be locked behind a wall. You're a living pattern, and the pattern is the lock.
+
+This isn't security theater. It's the framework operating at the cryptography layer: status, not story. What you do, not what you are.`,
 };
 
 function bindLearnConcepts() {
@@ -2146,6 +2294,7 @@ function buildLearnSystemPrompt() {
     technical: 'Use precise vocabulary. The reader is comfortable with frameworks and abstract concepts. Be rigorous.',
     poetic: 'Vivid. Use metaphor and imagery. The framework is itself a metaphor; render it as such. Still accurate, but evocative.',
   };
+  const deepNote = CONCEPT_DEEP_NOTES[STATE.learnConcept] || '';
   return `You are Alter — explaining the Spoon Economy framework to a curious reader.
 
 PRIME DIRECTIVE: STATE not SIZE. Never describe balloons as having sizes. Always describe states under conditions. Use: inflated/deflated, replenished/depleted, expanding/contracting, under pressure / at equilibrium.
@@ -2163,7 +2312,7 @@ CORE FRAMEWORK YOU'RE DRAWING FROM:
 - Resistance is essential to expansion. Replenishment without resistance produces sealed balloons at every wealth level. The lottery problem appears at both ends of the wealth distribution; mechanism is identical.
 - The center extracts. The periphery innovates under pressure. The differential is the engine. AI lowers cost-per-spoon but doesn't eliminate extraction.
 - Status, not story. Outcomes, not narratives.
-
+${deepNote ? '\nADDITIONAL CANONICAL NOTES FOR THIS CONCEPT (draw from these — adapt the depth and register, but be accurate to the mechanism):\n' + deepNote : ''}
 RULES:
 - Start the explanation immediately. No "let's dive in" filler.
 - One concept at a time. Don't try to fit the whole framework in unless asked for "the whole thing."
@@ -2320,7 +2469,7 @@ function bindLearnFlow() {
 /* Wire learn flow on DOM ready */
 document.addEventListener('DOMContentLoaded', () => {
   loadEntropy();
-  updateFingerprint();
+  renderFingerprint();
   bindLearnFlow();
 });
 
