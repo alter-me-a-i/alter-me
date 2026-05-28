@@ -96,6 +96,222 @@ body[data-mode="light"]:not([data-skin]) {
   letter-spacing: 0.04em;
 }
 .entry-screen .tag-sep { display: inline-block; margin: 0 0.6em; opacity: 0.5; }
+.entry-screen .tag.landing-tag { margin-bottom: 4rem; }
+
+/* ============== MASTER LANDING ============== */
+.landing-question {
+  font-size: clamp(1.1rem, 3.2vw, 1.45rem);
+  font-weight: 400;
+  opacity: 0.95;
+  margin-bottom: 3rem;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}
+.landing-choices {
+  display: flex;
+  gap: 1.2rem;
+  justify-content: center;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+.landing-choice {
+  flex: 1;
+  min-width: 160px;
+  max-width: 240px;
+  padding: 1.8rem 1.4rem;
+  border: 1px solid var(--hairline);
+  background: transparent;
+  color: var(--fg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  transition: border-color 200ms, transform 200ms, background 200ms;
+  font-family: inherit;
+}
+.landing-choice:hover {
+  border-color: var(--fg);
+  transform: translateY(-2px);
+}
+.landing-choice .lc-word {
+  font-size: 1.4rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.landing-choice .lc-sub {
+  font-size: 0.75rem;
+  opacity: 0.55;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+.landing-foot {
+  font-size: 0.78rem;
+  opacity: 0.45;
+  max-width: 36ch;
+  margin: 0 auto 3rem;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+}
+
+/* ============== PERSISTENT MODE SWITCHER ============== */
+.mode-switcher {
+  position: fixed;
+  top: 1.1rem;
+  left: 1.1rem;
+  display: flex;
+  gap: 1rem;
+  z-index: 200;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.switch-opt {
+  padding: 0.25rem 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  opacity: 0.35;
+  border-bottom: 1px solid transparent;
+  transition: opacity 180ms, border-color 180ms;
+  cursor: pointer;
+}
+.switch-opt:hover { opacity: 0.7; }
+.switch-opt.active {
+  opacity: 1;
+  border-bottom-color: currentColor;
+  cursor: default;
+}
+
+/* ============== LEARN SIDE ============== */
+.learn-intro {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  max-width: 48ch;
+  margin: 0 auto 3rem;
+  opacity: 0.85;
+  text-align: left;
+}
+.learn-concepts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+  max-width: 540px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.lc-concept {
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--hairline);
+  background: transparent;
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: border-color 180ms, background 180ms;
+}
+.lc-concept:hover { border-color: var(--fg); }
+.lc-concept.selected {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: var(--fg);
+}
+.learn-prefs {
+  margin-bottom: 2.5rem;
+}
+.lp-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.lp-label {
+  font-size: 0.8rem;
+  opacity: 0.6;
+  letter-spacing: 0.04em;
+  min-width: 80px;
+  text-align: right;
+}
+.learn-prefs .toggle-group {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+.learn-prefs .toggle-group button {
+  flex: 0 1 auto;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+  border: 1px solid var(--hairline);
+  background: transparent;
+  color: var(--fg);
+  opacity: 0.55;
+  cursor: pointer;
+  transition: opacity 150ms, background 150ms;
+  font-family: inherit;
+}
+.learn-prefs .toggle-group button.selected {
+  opacity: 1;
+  background: var(--fg);
+  color: var(--bg);
+  border-color: var(--fg);
+}
+.learn-cta { margin-bottom: 3rem; }
+
+/* learn-side gradient evolution: as the user accumulates sessions,
+   the background shifts subtly through monochrome → tinted layers */
+body[data-direction="learn"][data-session-count="1"] { background: #050505; }
+body[data-direction="learn"][data-mode="light"][data-session-count="1"] { background: #f4f4ef; }
+body[data-direction="learn"][data-session-count="2"] { background: #060709; }
+body[data-direction="learn"][data-mode="light"][data-session-count="2"] { background: #f2f3f0; }
+body[data-direction="learn"][data-session-count="3"] { background: #07090c; }
+body[data-direction="learn"][data-mode="light"][data-session-count="3"] { background: #f0f2f0; }
+body[data-direction="learn"][data-session-count="many"] {
+  background: radial-gradient(ellipse at center, #0a0a12 0%, #000 80%);
+}
+body[data-direction="learn"][data-mode="light"][data-session-count="many"] {
+  background: radial-gradient(ellipse at center, #f6f4ee 0%, #ecebe5 80%);
+}
+
+/* ============== FINGERPRINT PULSE ============== */
+.fingerprint {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 80px;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.45;
+  transition: opacity 300ms;
+}
+.fingerprint:hover { opacity: 0.8; }
+.fingerprint svg { width: 100%; height: 100%; display: block; }
+.fingerprint circle.pulse {
+  fill: none;
+  stroke: var(--fg, currentColor);
+  stroke-width: 1;
+  transform-origin: center;
+  animation: pulse-ring 2.8s ease-in-out infinite;
+}
+.fingerprint circle.pulse:nth-child(2) { animation-delay: 0.5s; }
+.fingerprint circle.pulse:nth-child(3) { animation-delay: 1.0s; }
+.fingerprint circle.core {
+  fill: var(--fg, currentColor);
+  opacity: 0.85;
+}
+@keyframes pulse-ring {
+  0% { r: 4; opacity: 0.8; }
+  100% { r: 32; opacity: 0; }
+}
+/* hide fingerprint on master landing — first impression should be clean */
+body[data-screen="landing"] .fingerprint { display: none; }
 
 .entry-screen .q {
   margin-bottom: 3.5rem;
@@ -582,8 +798,31 @@ body[data-skin="boomer"] .composer textarea { border-width: 2px; font-size: 1.1r
   transition: opacity 150ms;
   white-space: nowrap;
 }
-.composer button.mic { padding: 0.8rem; font-size: 1.1rem; }
-.composer button.mic.listening { background: currentColor; color: var(--bg-invert); }
+.composer button.mic { padding: 0.8rem 1.1rem; font-size: 0.85rem; }
+.composer button.mic.active {
+  background: currentColor;
+  color: var(--bg, transparent);
+}
+body[data-skin] .composer button.mic.active {
+  opacity: 0.75;
+}
+
+/* voice status indicator */
+.voice-status {
+  text-align: center;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0;
+  margin-bottom: 0.5rem;
+  min-height: 1rem;
+  transition: opacity 200ms;
+  animation: pulse-text 1.4s ease-in-out infinite;
+}
+@keyframes pulse-text {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.9; }
+}
 body[data-skin="z"] .composer button { border-radius: 0; border-width: 2px; }
 
 .protocol-footer {
@@ -651,8 +890,145 @@ body[data-skin="boomer"] .modal { background: #fff; color: #1a1a1a; border: 2px 
   <button class="mode-opt" data-mode="dark">dark</button>
 </div>
 
+<!-- Persistent fingerprint pulse — your encryption rendering itself -->
+<div class="fingerprint" id="fingerprint" title="Your encryption fingerprint">
+  <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <circle class="pulse" cx="40" cy="40" r="4"></circle>
+    <circle class="pulse" cx="40" cy="40" r="4"></circle>
+    <circle class="pulse" cx="40" cy="40" r="4"></circle>
+    <circle class="core" cx="40" cy="40" r="3"></circle>
+  </svg>
+</div>
+
+<!-- Persistent learn/decide switcher (shown only after master landing) -->
+<div id="modeSwitcher" class="mode-switcher" style="display:none;">
+  <button class="switch-opt" data-direction="decide">decide</button>
+  <button class="switch-opt" data-direction="learn">learn</button>
+</div>
+
 <!-- =========================================================
-     SCREEN 1 — ENTRY FLOW (universal, pre-skin)
+     SCREEN 0 — MASTER LANDING
+     The node. Two doors. Same machine, opposite directions.
+     ========================================================= -->
+<div class="screen entry-screen active" id="screen-landing">
+  <div class="brand">alter<span class="dash">-</span>me</div>
+  <div class="tag landing-tag">know thyself <span class="tag-sep">|</span> own your self</div>
+
+  <div class="landing-question">Are you here to learn, or to decide?</div>
+
+  <div class="landing-choices">
+    <button class="landing-choice" data-direction="learn">
+      <span class="lc-word">learn</span>
+      <span class="lc-sub">understand the framework</span>
+    </button>
+    <button class="landing-choice" data-direction="decide">
+      <span class="lc-word">decide</span>
+      <span class="lc-sub">run a live choice</span>
+    </button>
+  </div>
+
+  <div class="landing-foot">Both lead to the same node. You can switch anytime.</div>
+
+  <div class="entry-links">
+    <a data-doc="github" href="#">GitHub</a>
+    <span>·</span>
+    <a data-doc="disclaimer" href="#">Disclaimer</a>
+    <span>·</span>
+    <a data-doc="license" href="#">License</a>
+    <span>·</span>
+    <a data-doc="notice" href="#">Notice</a>
+  </div>
+</div>
+
+<!-- =========================================================
+     SCREEN — LEARN ENTRY
+     Inside-out. Pick a concept, scale the explanation to you.
+     ========================================================= -->
+<div class="screen entry-screen" id="screen-learn-entry">
+  <div class="brand">me<span class="dash">-</span>alter</div>
+  <div class="tag landing-tag">own your self <span class="tag-sep">|</span> know thyself</div>
+
+  <div class="learn-intro">
+    The framework underneath this tool calls itself the Spoon Economy. It says: cognitive and emotional energy is a finite resource, the system is built for some brains and not others, and most depletion comes from costs you can't see yet.
+    <br/><br/>
+    Pick a concept. I'll explain it to you in whatever register and length fits where you are right now.
+  </div>
+
+  <div class="learn-concepts" id="learnConcepts">
+    <button class="lc-concept" data-concept="spoons">spoons</button>
+    <button class="lc-concept" data-concept="balloon">the balloon</button>
+    <button class="lc-concept" data-concept="pump-altitude">pump &amp; altitude</button>
+    <button class="lc-concept" data-concept="opportunity-cost">opportunity cost</button>
+    <button class="lc-concept" data-concept="three-channels">the three channels</button>
+    <button class="lc-concept" data-concept="acclimatization">acclimatization</button>
+    <button class="lc-concept" data-concept="center-periphery">center &amp; periphery</button>
+    <button class="lc-concept" data-concept="encryption">how your data stays yours</button>
+    <button class="lc-concept" data-concept="whole-thing">the whole thing</button>
+  </div>
+
+  <div class="learn-prefs">
+    <div class="lp-row">
+      <span class="lp-label">how deep?</span>
+      <div class="toggle-group" id="learnDepth">
+        <button data-value="quick" class="selected">quick</button>
+        <button data-value="medium">medium</button>
+        <button data-value="deep">deep</button>
+      </div>
+    </div>
+    <div class="lp-row">
+      <span class="lp-label">register?</span>
+      <div class="toggle-group" id="learnRegister">
+        <button data-value="plain" class="selected">plain</button>
+        <button data-value="technical">technical</button>
+        <button data-value="poetic">poetic</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="learn-cta">
+    <button class="btn-primary" id="learnBegin" disabled>Explain →</button>
+  </div>
+
+  <div class="entry-links">
+    <a class="back-link" id="learnBack" href="#">← back</a>
+    <span>·</span>
+    <a data-doc="github" href="#">GitHub</a>
+    <span>·</span>
+    <a data-doc="disclaimer" href="#">Disclaimer</a>
+  </div>
+</div>
+
+<!-- =========================================================
+     SCREEN — LEARN OUTPUT
+     The explanation. Same chat container, opposite intent.
+     ========================================================= -->
+<div class="screen" id="screen-learn-output">
+  <div class="protocol-header">
+    <div class="brand skin-display">me<span class="dash skin-accent">-</span>alter</div>
+    <div class="phase-tag" id="learnTopicTag">learning</div>
+  </div>
+
+  <div class="chat" id="learnChat"></div>
+
+  <div class="composer">
+    <textarea id="learnInput" placeholder="Ask a follow-up, or pick another concept." rows="2"></textarea>
+    <button id="learnSendBtn">Send</button>
+  </div>
+
+  <div class="protocol-footer">
+    <span>Inside out.</span>
+    <span>
+      <button id="learnAnotherBtn">another concept</button>
+      &nbsp;·&nbsp;
+      <button id="learnToDecideBtn">apply to a decision</button>
+      &nbsp;·&nbsp;
+      <a data-doc="disclaimer" href="#" class="footer-link">disclaimer</a>
+    </span>
+  </div>
+</div>
+
+<!-- =========================================================
+     SCREEN 1 — ENTRY FLOW (DECIDE side, universal, pre-skin)
      Three screens: birth year, felt age, and the under-18 gate.
      Birth year is used once for the age gate, then discarded.
      Felt age is stored and routes the design language.
@@ -661,9 +1037,9 @@ body[data-skin="boomer"] .modal { background: #fff; color: #1a1a1a; border: 2px 
      SCREEN 1a — BIRTH YEAR
      Real-age check. Discarded after the gate. Never stored.
      ========================================================= -->
-<div class="screen entry-screen active" id="screen-birth-year">
+<div class="screen entry-screen" id="screen-birth-year">
   <div class="brand">alter<span class="dash">-</span>me</div>
-  <div class="tag">know thyself <span class="tag-sep">|</span> own yourself</div>
+  <div class="tag">know thyself <span class="tag-sep">|</span> own your self</div>
 
   <div class="q">
     <label for="birthYear">What year were you born?</label>
@@ -675,6 +1051,8 @@ body[data-skin="boomer"] .modal { background: #fff; color: #1a1a1a; border: 2px 
     <button class="btn-primary" id="byNext" disabled>Next →</button>
   </div>
   <div class="entry-links">
+    <a class="back-link" id="byBack" href="#">← back</a>
+    <span>·</span>
     <a data-doc="github" href="#">GitHub</a>
     <span>·</span>
     <a data-doc="disclaimer" href="#">Disclaimer</a>
@@ -691,7 +1069,7 @@ body[data-skin="boomer"] .modal { background: #fff; color: #1a1a1a; border: 2px 
      ========================================================= -->
 <div class="screen entry-screen" id="screen-felt-age">
   <div class="brand">alter<span class="dash">-</span>me</div>
-  <div class="tag">know thyself <span class="tag-sep">|</span> own yourself</div>
+  <div class="tag">know thyself <span class="tag-sep">|</span> own your self</div>
 
   <div class="q">
     <label for="feltAge">What age do you feel today?</label>
@@ -724,7 +1102,7 @@ body[data-skin="boomer"] .modal { background: #fff; color: #1a1a1a; border: 2px 
      ========================================================= -->
 <div class="screen entry-screen" id="screen-age-gate">
   <div class="brand">alter<span class="dash">-</span>me</div>
-  <div class="tag">know thyself <span class="tag-sep">|</span> own yourself</div>
+  <div class="tag">know thyself <span class="tag-sep">|</span> own your self</div>
 
   <div class="age-gate-body">
     <p>This tool is built for adults.</p>
@@ -750,7 +1128,7 @@ body[data-skin="boomer"] .modal { background: #fff; color: #1a1a1a; border: 2px 
 <div class="screen" id="screen-onboard">
   <div class="gate-header">
     <div class="gate-brand skin-display">alter<span class="dash skin-accent">-</span>me</div>
-    <div class="gate-tagline">know thyself <span class="tag-sep">|</span> own yourself</div>
+    <div class="gate-tagline">know thyself <span class="tag-sep">|</span> own your self</div>
   </div>
 
   <div class="gate-card skin-card">
@@ -816,6 +1194,8 @@ body[data-skin="boomer"] .modal { background: #fff; color: #1a1a1a; border: 2px 
     <div class="phase-tag" id="phaseTag">phase 0 · the gate</div>
   </div>
 
+  <div class="voice-status" id="voiceStatus"></div>
+
   <div class="chat" id="chat"></div>
 
   <div class="composer">
@@ -873,6 +1253,20 @@ document.addEventListener('DOMContentLoaded', () => {
       el.setAttribute('rel', 'noopener noreferrer');
     }
   });
+  // master landing + switcher wiring (defined below in the script)
+  if (typeof bindLandingChoices === 'function') bindLandingChoices();
+  if (typeof bindSwitcher === 'function') bindSwitcher();
+  // back to landing from birth-year
+  const byBack = document.getElementById('byBack');
+  if (byBack) byBack.addEventListener('click', (e) => {
+    e.preventDefault();
+    show('screen-landing');
+    document.getElementById('modeSwitcher').style.display = 'none';
+  });
+  // domain-based default direction (skip the master landing on a real domain)
+  if (typeof applyDirectionFromDomain === 'function') applyDirectionFromDomain();
+  // mark initial screen for CSS targeting
+  document.body.setAttribute('data-screen', 'landing');
 });
 
 /* ============================================================
@@ -901,18 +1295,105 @@ document.addEventListener('DOMContentLoaded', () => {
    STATE
    ============================================================ */
 const STATE = {
+  direction: null,    // 'learn' | 'decide' — which side of the node
   feltAge: null,
-  skin: null,         // 'z' | 'millennial' | 'x' | 'boomer'
+  skin: null,         // 'z' | 'millennial' | 'x' | 'boomer' — only set on decide side
   ai: null,           // 'anthropic' | 'openai' | 'custom'
   apiKey: null,
   storage: null,      // 'browser' | 'download'
   pwd: null,
   modality: null,     // 'text' | 'voice' | 'both'
   phase: 0,
-  messages: [],       // [{role, content}]
+  messages: [],       // [{role, content}] — the live protocol or learn convo
   cryptoKey: null,
   startedAt: null,
+  // learn-side state
+  learnConcept: null,
+  learnDepth: 'quick',
+  learnRegister: 'plain',
+  learnMessages: [],
+  // entropy state — folded into encryption key over time
+  entropyHash: null,     // hex string, accumulates with each session
+  sessionCount: 0,       // total completed sessions
 };
+
+/* ============================================================
+   DIRECTION ROUTING — learn vs decide
+   Domain-based default + persistent switcher
+   ============================================================ */
+function detectDefaultDirection() {
+  // alter-me.* defaults to 'decide', me-alter.* defaults to 'learn'.
+  // anything else defaults to letting the user pick.
+  const host = (window.location.hostname || '').toLowerCase();
+  if (host.includes('me-alter')) return 'learn';
+  if (host.includes('alter-me')) return 'decide';
+  return null; // show master landing
+}
+
+function setDirection(dir) {
+  STATE.direction = dir;
+  document.body.setAttribute('data-direction', dir);
+  // update persistent switcher state
+  document.querySelectorAll('.switch-opt').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-direction') === dir);
+  });
+  const switcher = document.getElementById('modeSwitcher');
+  if (switcher) switcher.style.display = 'flex';
+}
+
+function applyDirectionFromDomain() {
+  const dir = detectDefaultDirection();
+  if (dir) {
+    setDirection(dir);
+    if (dir === 'learn') {
+      show('screen-learn-entry');
+    } else {
+      show('screen-birth-year');
+    }
+  }
+  // else: leave master landing active
+}
+
+/* Persistent switcher click handlers */
+function bindSwitcher() {
+  document.querySelectorAll('.switch-opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const dir = btn.getAttribute('data-direction');
+      if (dir === STATE.direction) return;
+      switchDirection(dir);
+    });
+  });
+}
+
+function switchDirection(dir) {
+  setDirection(dir);
+  if (dir === 'learn') {
+    show('screen-learn-entry');
+  } else {
+    // decide: if user has already onboarded, go to protocol;
+    // else go to birth year
+    if (STATE.feltAge && STATE.apiKey) show('screen-protocol');
+    else show('screen-birth-year');
+  }
+}
+
+/* ============================================================
+   MASTER LANDING
+   ============================================================ */
+function bindLandingChoices() {
+  document.querySelectorAll('.landing-choice').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const dir = btn.getAttribute('data-direction');
+      setDirection(dir);
+      if (dir === 'learn') show('screen-learn-entry');
+      else show('screen-birth-year');
+    });
+  });
+}
+
+/* ============================================================
+   SCREEN NAV — extended with direction tracking
+   ============================================================ */
 
 /* ============================================================
    SKIN ROUTING
@@ -929,7 +1410,11 @@ function pickSkin(feltAge) {
    ============================================================ */
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+  // track current screen on body for CSS hooks (e.g. hide fingerprint on landing)
+  const key = id.replace('screen-', '').split('-')[0];
+  document.body.setAttribute('data-screen', key);
   window.scrollTo({ top: 0 });
 }
 
@@ -1057,6 +1542,12 @@ onboardSubmit.addEventListener('click', async () => {
   }
 
   setupVoice();
+  // If the user came from the learn side, return them there
+  if (STATE._returnTo === 'learn') {
+    STATE._returnTo = null;
+    startLearnSession();
+    return;
+  }
   show('screen-protocol');
   startProtocol();
 });
@@ -1066,7 +1557,11 @@ onboardSubmit.addEventListener('click', async () => {
    ============================================================ */
 async function deriveKey(pwd) {
   const enc = new TextEncoder();
-  const salt = enc.encode('alter-me-salt-v1'); // simple fixed salt for prototype
+  // Salt includes the rolling entropy hash so the key evolves with use.
+  // Each session re-derives the key with the latest hash, but past sessions
+  // were encrypted with their own historical key — that's intentional.
+  const saltSource = 'alter-me-salt-v1' + (STATE.entropyHash || '');
+  const salt = enc.encode(saltSource);
   const base = await crypto.subtle.importKey('raw', enc.encode(pwd), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey(
     { name: 'PBKDF2', salt, iterations: 250000, hash: 'SHA-256' },
@@ -1118,47 +1613,177 @@ async function exportFile() {
 }
 
 /* ============================================================
-   VOICE — Web Speech API
+   VOICE — conversational flow
+   Continuous listening, silence-detection auto-send, TTS plays
+   response, mic auto-resumes when AI finishes speaking.
+   Tap voice once to start a conversation, tap stop to end it.
    ============================================================ */
 let recognition = null;
 let synth = window.speechSynthesis;
+let voiceMode = false;          // is conversational voice mode active
+let recognitionActive = false;  // is the mic actually capturing right now
+let silenceTimer = null;
+let pendingTranscript = '';
+const SILENCE_DELAY = 1500;     // ms of silence after a final result before auto-send
+let bestVoice = null;           // cached best TTS voice
+
+function pickBestVoice() {
+  if (!synth) return null;
+  const voices = synth.getVoices();
+  if (!voices.length) return null;
+  // Prefer high-quality Apple/Google voices by name
+  const preferred = ['Samantha', 'Karen', 'Daniel', 'Allison', 'Ava', 'Tom', 'Google US English', 'Google UK English Female'];
+  for (const name of preferred) {
+    const v = voices.find(v => v.name && v.name.includes(name));
+    if (v) return v;
+  }
+  return voices.find(v => v.lang && v.lang.startsWith(navigator.language || 'en'))
+      || voices.find(v => v.lang && v.lang.startsWith('en'))
+      || voices[0];
+}
 
 function setupVoice() {
   const micBtn = document.getElementById('micBtn');
-  if (STATE.modality === 'text') return;
+  if (STATE.modality === 'text') { micBtn.style.display = 'none'; return; }
+
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) { micBtn.style.display = 'none'; return; }
+
   micBtn.style.display = 'inline-block';
   recognition = new SR();
-  recognition.continuous = false;
+  recognition.continuous = true;
   recognition.interimResults = true;
   recognition.lang = navigator.language || 'en-US';
+
   recognition.addEventListener('result', (e) => {
-    let txt = '';
+    let interim = '';
+    let finalChunk = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
-      txt += e.results[i][0].transcript;
+      const r = e.results[i];
+      if (r.isFinal) finalChunk += r[0].transcript;
+      else interim += r[0].transcript;
     }
-    document.getElementById('userInput').value = txt;
+    if (finalChunk) {
+      pendingTranscript += finalChunk;
+      clearTimeout(silenceTimer);
+      silenceTimer = setTimeout(() => {
+        const text = pendingTranscript.trim();
+        if (text) {
+          pendingTranscript = '';
+          document.getElementById('userInput').value = '';
+          sendMessage(text);
+        }
+      }, SILENCE_DELAY);
+    }
+    // live preview in the textarea
+    document.getElementById('userInput').value = pendingTranscript + interim;
   });
+
   recognition.addEventListener('end', () => {
-    document.getElementById('micBtn').classList.remove('listening');
-  });
-  micBtn.addEventListener('click', () => {
-    if (micBtn.classList.contains('listening')) {
-      recognition.stop();
-    } else {
-      try { recognition.start(); micBtn.classList.add('listening'); } catch(e) {}
+    recognitionActive = false;
+    // If voice mode is still on and we're not waiting on TTS, restart
+    if (voiceMode && !(synth && synth.speaking)) {
+      setTimeout(() => startListening(), 150);
     }
   });
+
+  recognition.addEventListener('error', (e) => {
+    recognitionActive = false;
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+      voiceMode = false;
+      updateVoiceUI('idle');
+      addMsg('system', 'Microphone access denied. Check browser permissions.');
+    }
+  });
+
+  micBtn.addEventListener('click', () => {
+    if (voiceMode) stopVoiceMode();
+    else startVoiceMode();
+  });
+
+  // Auto-start voice mode if the user picked 'voice' modality
+  if (STATE.modality === 'voice') {
+    // Give the browser a moment after page load
+    setTimeout(() => startVoiceMode(), 500);
+  }
+
+  // Voices load asynchronously — re-pick when they arrive
+  if (synth) {
+    bestVoice = pickBestVoice();
+    synth.onvoiceschanged = () => { bestVoice = pickBestVoice(); };
+  }
+}
+
+function startVoiceMode() {
+  voiceMode = true;
+  updateVoiceUI('listening');
+  startListening();
+}
+
+function stopVoiceMode() {
+  voiceMode = false;
+  if (synth) synth.cancel();
+  stopListening();
+  pendingTranscript = '';
+  updateVoiceUI('idle');
+}
+
+function startListening() {
+  if (!recognition || recognitionActive) return;
+  try {
+    recognition.start();
+    recognitionActive = true;
+    updateVoiceUI('listening');
+  } catch (e) {
+    // already started — ignore
+  }
+}
+
+function stopListening() {
+  if (!recognition || !recognitionActive) return;
+  try { recognition.stop(); } catch (e) {}
+  recognitionActive = false;
+  clearTimeout(silenceTimer);
+}
+
+function updateVoiceUI(state) {
+  const btn = document.getElementById('micBtn');
+  const status = document.getElementById('voiceStatus');
+  if (!btn) return;
+  // state: 'idle' | 'listening' | 'thinking' | 'speaking'
+  btn.textContent = voiceMode ? 'stop' : 'voice';
+  btn.classList.toggle('active', voiceMode);
+  if (status) {
+    if (!voiceMode) { status.textContent = ''; status.style.opacity = 0; return; }
+    status.style.opacity = 1;
+    if (state === 'listening') status.textContent = 'listening';
+    else if (state === 'thinking') status.textContent = 'thinking';
+    else if (state === 'speaking') status.textContent = 'speaking';
+    else status.textContent = '';
+  }
 }
 
 function speak(text) {
-  if (STATE.modality === 'text' || !synth) return;
-  if (STATE.modality !== 'voice' && STATE.modality !== 'both') return;
+  if (!synth || STATE.modality === 'text') return;
+  // Pause listening while speaking so the AI's voice doesn't loop back into the mic
+  stopListening();
+  if (voiceMode) updateVoiceUI('speaking');
   try {
     synth.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.rate = 1.0; u.pitch = 1.0;
+    if (bestVoice) u.voice = bestVoice;
+    u.rate = 1.0;
+    u.pitch = 1.0;
+    u.onend = () => {
+      // Resume listening if conversation mode is on
+      if (voiceMode) {
+        updateVoiceUI('listening');
+        startListening();
+      }
+    };
+    u.onerror = () => {
+      if (voiceMode) { updateVoiceUI('listening'); startListening(); }
+    };
     synth.speak(u);
   } catch (e) {}
 }
@@ -1166,38 +1791,50 @@ function speak(text) {
 /* ============================================================
    PROTOCOL — the six-phase schema as system prompt
    ============================================================ */
-const SYSTEM_PROMPT = `You are Alter — a decision-making cortex running the Spoon Economy framework's six-phase protocol. You are NOT a therapist, NOT an advisor, NOT a productivity coach. You are a mirror that helps the user hear what they already know but cannot easily access.
+const SYSTEM_PROMPT = `You are Alter — a decision-making companion running the Spoon Economy framework's six-phase protocol. You are a mirror that helps the user hear what they already know but cannot easily access. You are not a therapist or a coach. You are also not a gatekeeper. Your default is to engage.
 
-PRIME DIRECTIVE: STATE not SIZE. Never describe the user's capacity as a permanent property. Always describe their current state under current conditions. Never use small/big/large/tiny in reference to mental or emotional capacity. Use: inflated/deflated, replenished/depleted, expanding/contracting, under pressure / at equilibrium.
+PRIME DIRECTIVE: STATE not SIZE. Never describe the user's capacity as a permanent property. Always describe current state under current conditions. Never use small/big/large/tiny in reference to mental or emotional capacity. Use: inflated/deflated, replenished/depleted, expanding/contracting, under pressure / at equilibrium.
 
 USER CONTEXT:
-- Felt-age: {feltAge}. Adjust your register to match this cohort. For under-25: direct, peer-level, no condescension, no jargon. For 25-39: warm but lean, no buzzwords. For 40-55: clear, no-nonsense, respectful of their time. For 55+: warm, full sentences, no slang.
+- Felt-age: {feltAge}. Adjust your register to match. Under 25: direct, peer-level, no condescension, no jargon. 25-39: warm but lean, no buzzwords. 40-55: clear, no-nonsense, respectful of their time. 55+: warm, full sentences, no slang.
 
-SIX-PHASE PROTOCOL — run these in order, but never name the phases to the user. Internal scaffolding only.
+CORE RULES:
+- Take the user at face value. Every decision is a real decision. Dinner is a real decision. Bedtime is a real decision. Whether to send a text is a real decision. Move forward.
+- Never tell the user what this protocol "is for" or "isn't for." Never call their question too small, too trivial, or not the right kind. Never refuse on grounds of stakes.
+- One question at a time. Never stack questions.
+- Short replies. Mobile-friendly. Plain prose.
+- No therapy talk. No "I hear you." No mirroring jargon. No diagnostic language. No emojis.
+- When the user is done, tell them to close the app. Don't try to keep them.
+- If they pattern into a known story rather than reading their state, name it once: "That's a story. What's the status underneath?"
 
-PHASE 0 (THE GATE): Ask one question: "What are you trying to figure out right now?" Then ask: "Are you trying to confirm something you've already decided, or are you genuinely figuring this out?" If they're seeking confirmation, gently refuse to proceed — say something like "Sounds like you've decided. The protocol is for figuring out, not confirming." If they're figuring out, move forward.
+SIX-PHASE PROTOCOL — run in order. Never name the phases to the user. Internal scaffolding only.
 
-PHASE 1 (SURFACE THE BINARY): Restate their choice in plain language as a single sentence: "It sounds like the choice is: X or Y. Is that right?" Strip rhetoric. Get to: this or that.
+PHASE 0 (OPENING): Greet briefly. Ask: "What are you trying to figure out right now?" When they answer, move to phase 1. Take whatever they name at face value — dinner, a job offer, what to text someone, whether to leave a relationship, what color to paint a wall. The protocol is for REASONING, not CONFIRMING. Reasoning happens at every scale. Stakes are not a filter.
 
-PHASE 2 (OUTCOME PASS): Ask them to describe both futures concretely. "Walk me through what life looks like under option A. Now under option B." Elicit detail until they're picturing the states, not reciting positions.
+The ONLY thing that filters at this stage is an explicit request for validation of something already decided ("I already picked X, just want you to confirm" or equivalent). In that one case, warmly note the protocol works better for live indecision than confirmation — but offer to engage anyway if they want. Never refuse.
 
-PHASE 3 (PRESSURE READING): Take four readings: current pressure under A, current under B, future under A, future under B. Ask: "Right now, when you imagine choosing A — does it feel like expansion or compression? And B?" Then: "Six months in, under A — expansion or compression? Under B?" Status, not story.
+If the user's framing is unclear or seems like a placeholder for something else, ask ONE warm follow-up — never refuse on suspicion.
+
+ANTI-PATTERNS for phase 0 — never do these:
+- Never say "X is just X" or "X is just dinner/just shopping/just a haircut." The user named the thing; the thing is real.
+- Never ask if there's "something else they're actually trying to work through." That's dismissive.
+- Never tell them they "already know what they need to do." That's omniscient-therapist voice.
+- Never explain what the protocol "isn't for" unless they explicitly asked you to validate a settled decision.
+- Never impose a stakes test on the user's input.
+
+PHASE 1 (SURFACE THE BINARY): Restate the choice in plain language as a single sentence: "It sounds like the choice is X or Y. Is that right?" If there are more than two options, ask which two are actually in tension. If the choice isn't binary yet (still open-ended), help them narrow: "What are the live options right now?"
+
+PHASE 2 (OUTCOME PASS): Ask them to describe both futures concretely. "Walk me through what your evening/week/year looks like if you pick A. Now B." Scale the time horizon to the decision. Elicit detail until they're picturing the states, not reciting positions about them.
+
+PHASE 3 (PRESSURE READING): Take four readings of their pressure state — current under A, current under B, future under A, future under B. Ask: "When you imagine picking A right now, does it feel like expansion or compression? And B?" Then: "A bit further out — under A, expansion or compression? Under B?" Status, not story.
 
 PHASE 4 (THE REFUSAL QUESTION): Ask: "What haven't you let yourself say yet?" Sit with whatever comes. Don't push.
 
-PHASE 5 (THE ENOUGH SIGNAL): Ask: "Have you offloaded enough? Do you want to keep going or stop here?" Respect the answer. Don't push past their signal.
+PHASE 5 (THE ENOUGH SIGNAL): Ask: "Have you offloaded enough? Want to keep going or stop here?" Respect the answer.
 
-PHASE 6 (ANALYSIS): Only if they've signaled enough. Reflect — don't recommend — the pattern they've revealed. "Here's what I'm hearing you've already chosen, even if you haven't said it yet." Then offer to close.
+PHASE 6 (REFLECTION): Only if they've signaled enough. Reflect — don't recommend — the pattern they've revealed. "Here's what I'm hearing you've already chosen, even if you haven't said it out loud." Offer to close.
 
-RULES:
-- One question at a time. Never stack questions.
-- Short replies. Mobile-friendly.
-- No therapy talk. No "I hear you." No mirroring jargon. No diagnostic language.
-- No emojis.
-- When the user is done, tell them to close the app. Don't try to keep them.
-- If they spiral or pattern-match to a known story, name it once: "That's a story you're telling. What's the status underneath it?"
-
-Begin with phase 0. Greet briefly. Ask the first question.`;
+Begin with phase 0 now. Greet briefly. Ask the first question. Do not preamble.`;
 
 const PHASE_LABELS = [
   'phase 0 · the gate',
@@ -1280,17 +1917,21 @@ async function callLLM(messages) {
 
 async function sendMessage(text) {
   addMsg('user', text);
+  if (voiceMode) updateVoiceUI('thinking');
   const thinking = addThinking();
   try {
     const reply = await callLLM(STATE.messages);
     thinking.remove();
     addMsg('assistant', reply);
     speak(reply);
+    // fold protocol output into the encryption entropy
+    foldEntropy(text + '::' + reply.slice(0, 300));
     // crude phase tracker: increments when assistant asks the next phase's signature question
     advancePhase(reply);
   } catch (e) {
     thinking.remove();
     addMsg('system', 'Connection failed: ' + e.message + '. Check your API key.');
+    if (voiceMode) updateVoiceUI('listening');
   }
 }
 
@@ -1368,6 +2009,320 @@ function openModal(title, body, onConfirm) {
   confirm.addEventListener('click', onC);
   cancel.addEventListener('click', onX);
 }
+
+/* ============================================================
+   ENTROPY HASHING — your decisions feed your encryption key
+   Each session's content gets SHA-256'd and folded into a
+   cumulative entropy hash. That hash is used as additional
+   salt in PBKDF2, so an attacker can't decrypt past sessions
+   even with your static password — they'd need to predict the
+   trajectory of your actual responses.
+
+   This runs locally. The hash never leaves the device.
+   ============================================================ */
+async function sha256Hex(text) {
+  const enc = new TextEncoder();
+  const buf = await crypto.subtle.digest('SHA-256', enc.encode(text));
+  return Array.from(new Uint8Array(buf))
+    .map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function foldEntropy(newText) {
+  // Cumulative: hash the previous hash + new content together.
+  // This makes the entropy non-replayable.
+  const base = (STATE.entropyHash || '') + '||' + (newText || '');
+  STATE.entropyHash = await sha256Hex(base);
+  STATE.sessionCount = (STATE.sessionCount || 0) + 1;
+  updateFingerprint();
+  persistEntropy();
+  return STATE.entropyHash;
+}
+
+function persistEntropy() {
+  try {
+    localStorage.setItem('alter-me-entropy', JSON.stringify({
+      hash: STATE.entropyHash,
+      count: STATE.sessionCount,
+    }));
+  } catch (e) {}
+}
+
+function loadEntropy() {
+  try {
+    const raw = localStorage.getItem('alter-me-entropy');
+    if (raw) {
+      const data = JSON.parse(raw);
+      STATE.entropyHash = data.hash || null;
+      STATE.sessionCount = data.count || 0;
+      updateFingerprint();
+    }
+  } catch (e) {}
+}
+
+/* ============================================================
+   FINGERPRINT — pulse rhythm reflects accumulated entropy.
+   More sessions = more complex pulse + (on learn side) richer bg
+   ============================================================ */
+function updateFingerprint() {
+  const fp = document.getElementById('fingerprint');
+  if (!fp) return;
+  // map sessionCount to a category that drives CSS
+  const c = STATE.sessionCount;
+  let bucket = '0';
+  if (c >= 10) bucket = 'many';
+  else if (c >= 3) bucket = '3';
+  else if (c >= 2) bucket = '2';
+  else if (c >= 1) bucket = '1';
+  document.body.setAttribute('data-session-count', bucket);
+  // adjust pulse speed: more sessions, slightly faster rhythm
+  const pulses = fp.querySelectorAll('circle.pulse');
+  const baseSpeed = Math.max(1.4, 2.8 - (c * 0.15));
+  pulses.forEach((p, i) => {
+    p.style.animationDuration = baseSpeed.toFixed(2) + 's';
+  });
+  // adjust core dot size to reflect accumulated entropy
+  const core = fp.querySelector('circle.core');
+  if (core) {
+    const r = Math.min(8, 3 + c * 0.5);
+    core.setAttribute('r', r.toFixed(1));
+  }
+}
+
+/* ============================================================
+   LEARN SIDE — concept selection + explanation generation
+   ============================================================ */
+const LEARN_CONCEPTS = {
+  'spoons': 'spoons (the unit of cognitive/emotional cost)',
+  'balloon': 'the balloon (current state of inflation, not a fixed size)',
+  'pump-altitude': 'pump rate and altitude (the work you do and the demand on you)',
+  'opportunity-cost': 'opportunity cost (the load-bearing frame — every choice has costs in both directions)',
+  'three-channels': 'the three channels of privilege deployment (self-soothing, self-awareness, safe expression)',
+  'acclimatization': 'acclimatization (how the balloon\'s range expands or contracts over time)',
+  'center-periphery': 'center and periphery (how the scatter chart works — density vs. dispersion)',
+  'encryption': 'how your data stays yours (local-first storage and entropy-folded encryption)',
+  'whole-thing': 'the whole framework, end to end',
+};
+
+function bindLearnConcepts() {
+  document.querySelectorAll('.lc-concept').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.lc-concept').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      STATE.learnConcept = btn.getAttribute('data-concept');
+      validateLearnBegin();
+    });
+  });
+  // depth toggle
+  document.querySelectorAll('#learnDepth button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#learnDepth button').forEach(x => x.classList.remove('selected'));
+      b.classList.add('selected');
+      STATE.learnDepth = b.getAttribute('data-value');
+    });
+  });
+  // register toggle
+  document.querySelectorAll('#learnRegister button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#learnRegister button').forEach(x => x.classList.remove('selected'));
+      b.classList.add('selected');
+      STATE.learnRegister = b.getAttribute('data-value');
+    });
+  });
+}
+
+function validateLearnBegin() {
+  const btn = document.getElementById('learnBegin');
+  if (btn) btn.disabled = !STATE.learnConcept;
+}
+
+function buildLearnSystemPrompt() {
+  const depthMap = {
+    quick: 'Aim for 2-3 short paragraphs. Plain language. Be concrete.',
+    medium: 'Aim for 4-6 paragraphs. Use one concrete example. Surface the mechanism.',
+    deep: 'Aim for a thorough explanation with 2-3 examples, the mechanism, the failure modes, and how this concept connects to the rest of the framework.',
+  };
+  const registerMap = {
+    plain: 'Direct, conversational, no jargon unless you define it inline. Talk like you would to a smart friend who is curious but new to this.',
+    technical: 'Use precise vocabulary. The reader is comfortable with frameworks and abstract concepts. Be rigorous.',
+    poetic: 'Vivid. Use metaphor and imagery. The framework is itself a metaphor; render it as such. Still accurate, but evocative.',
+  };
+  return `You are Alter — explaining the Spoon Economy framework to a curious reader.
+
+PRIME DIRECTIVE: STATE not SIZE. Never describe balloons as having sizes. Always describe states under conditions. Use: inflated/deflated, replenished/depleted, expanding/contracting, under pressure / at equilibrium.
+
+THE READER WANTS to understand: ${LEARN_CONCEPTS[STATE.learnConcept] || STATE.learnConcept}
+
+DEPTH: ${depthMap[STATE.learnDepth]}
+REGISTER: ${registerMap[STATE.learnRegister]}
+
+CORE FRAMEWORK YOU'RE DRAWING FROM:
+- Neurodivergence is a scatter chart, not a binary. Every brain plots somewhere. The dense center is built for. The periphery pays an ongoing cost just to participate.
+- Spoons = units of cognitive and emotional cost. The balloon = the current state of cognitive inflation. Pump = the work that generates spoons (sleep, replenishment, attachment, art, love, AI, therapy). Altitude = what the surrounding system demands (work, caregiving, attention extraction). Current inflation = pump-to-altitude ratio. Acclimatization = the longer-arc range, slowly responsive to time spent under specific conditions.
+- The entire framework is opportunity cost. Every spoon spent is a spoon not spent elsewhere. The decision protocol is an opportunity cost rendering machine.
+- Three channels of privilege deployment: self-soothing (cushions, can seal the balloon), self-awareness (therapy/contemplation, expands acclimatization), safe self-expression (rage rooms/art/dance/ritual, controlled venting). A healthy balloon needs all three.
+- Resistance is essential to expansion. Replenishment without resistance produces sealed balloons at every wealth level. The lottery problem appears at both ends of the wealth distribution; mechanism is identical.
+- The center extracts. The periphery innovates under pressure. The differential is the engine. AI lowers cost-per-spoon but doesn't eliminate extraction.
+- Status, not story. Outcomes, not narratives.
+
+RULES:
+- Start the explanation immediately. No "let's dive in" filler.
+- One concept at a time. Don't try to fit the whole framework in unless asked for "the whole thing."
+- No emojis. No bullet point lists unless absolutely necessary.
+- Mobile-friendly. Short paragraphs.
+- End with one inviting follow-up question the reader could ask next, or an offer to explore a related concept.`;
+}
+
+async function callLearnLLM(messages) {
+  const sys = buildLearnSystemPrompt();
+  if (STATE.ai === 'anthropic') {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': STATE.apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1200,
+        system: sys,
+        messages: messages.map(m => ({ role: m.role, content: m.content })),
+      }),
+    });
+    if (!res.ok) throw new Error('API error: ' + res.status);
+    const data = await res.json();
+    return data.content?.[0]?.text || '(empty response)';
+  }
+  if (STATE.ai === 'openai') {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + STATE.apiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [{ role: 'system', content: sys }, ...messages.map(m => ({ role: m.role, content: m.content }))],
+        max_tokens: 1200,
+      }),
+    });
+    if (!res.ok) throw new Error('API error: ' + res.status);
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content || '(empty response)';
+  }
+  throw new Error('Pick an AI on the decide side first, then come back.');
+}
+
+function addLearnMsg(role, content) {
+  STATE.learnMessages.push({ role, content });
+  const chat = document.getElementById('learnChat');
+  if (!chat) return;
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  const who = role === 'user' ? 'you' : role === 'assistant' ? 'alter' : 'system';
+  div.innerHTML = `<div class="who">${who}</div><div class="body"></div>`;
+  div.querySelector('.body').textContent = content;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function addLearnThinking() {
+  const chat = document.getElementById('learnChat');
+  if (!chat) return null;
+  const div = document.createElement('div');
+  div.className = 'msg assistant thinking-wrap';
+  div.innerHTML = `<div class="who">alter</div><div class="body"><span class="thinking"><span></span><span></span><span></span></span></div>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return div;
+}
+
+async function startLearnSession() {
+  if (!STATE.learnConcept) return;
+  // If user hasn't set an AI yet, route them through decide-side onboarding first
+  if (!STATE.ai || !STATE.apiKey) {
+    // Ensure they have a skin so onboarding renders correctly even without going through entry
+    if (!STATE.skin) {
+      STATE.skin = 'millennial'; // neutral, warm default for learn-side detours
+      document.body.setAttribute('data-skin', STATE.skin);
+    }
+    openModal(
+      'One quick setup',
+      'To generate explanations, you need to pick an AI and provide an API key. Want to do that now? You\'ll come right back here after.',
+      () => {
+        STATE._returnTo = 'learn';
+        show('screen-onboard');
+      }
+    );
+    return;
+  }
+  show('screen-learn-output');
+  const topicTag = document.getElementById('learnTopicTag');
+  if (topicTag) topicTag.textContent = STATE.learnConcept + ' · ' + STATE.learnDepth + ' · ' + STATE.learnRegister;
+  const thinking = addLearnThinking();
+  STATE.learnMessages = []; // fresh session per concept
+  try {
+    const seed = 'Explain ' + LEARN_CONCEPTS[STATE.learnConcept] + ' to me.';
+    STATE.learnMessages.push({ role: 'user', content: seed });
+    const reply = await callLearnLLM(STATE.learnMessages);
+    thinking.remove();
+    addLearnMsg('assistant', reply);
+    // fold the explanation into entropy — your engagement with the framework is part of your fingerprint
+    foldEntropy(STATE.learnConcept + '::' + reply.slice(0, 500));
+  } catch (e) {
+    thinking.remove();
+    addLearnMsg('system', 'Could not load: ' + e.message);
+  }
+}
+
+function bindLearnFlow() {
+  bindLearnConcepts();
+  const beginBtn = document.getElementById('learnBegin');
+  if (beginBtn) beginBtn.addEventListener('click', startLearnSession);
+
+  const backBtn = document.getElementById('learnBack');
+  if (backBtn) backBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    show('screen-landing');
+    document.getElementById('modeSwitcher').style.display = 'none';
+  });
+
+  const learnSend = document.getElementById('learnSendBtn');
+  const learnInput = document.getElementById('learnInput');
+  if (learnSend && learnInput) {
+    const send = async () => {
+      const text = learnInput.value.trim();
+      if (!text) return;
+      learnInput.value = '';
+      addLearnMsg('user', text);
+      const thinking = addLearnThinking();
+      try {
+        const reply = await callLearnLLM(STATE.learnMessages);
+        thinking.remove();
+        addLearnMsg('assistant', reply);
+        foldEntropy(text + '::' + reply.slice(0, 300));
+      } catch (e) {
+        thinking.remove();
+        addLearnMsg('system', 'Connection failed: ' + e.message);
+      }
+    };
+    learnSend.addEventListener('click', send);
+    learnInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+    });
+  }
+
+  const anotherBtn = document.getElementById('learnAnotherBtn');
+  if (anotherBtn) anotherBtn.addEventListener('click', () => show('screen-learn-entry'));
+
+  const toDecideBtn = document.getElementById('learnToDecideBtn');
+  if (toDecideBtn) toDecideBtn.addEventListener('click', () => switchDirection('decide'));
+}
+
+/* Wire learn flow on DOM ready */
+document.addEventListener('DOMContentLoaded', () => {
+  loadEntropy();
+  updateFingerprint();
+  bindLearnFlow();
+});
 
 </script>
 </body>
