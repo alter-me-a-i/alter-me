@@ -1241,7 +1241,7 @@ body[data-skin="boomer"] .modal { background: #fff; color: #1a1a1a; border: 2px 
 /* ============================================================
    CONFIG — change REPO_URL once and all doc links update
    ============================================================ */
-const REPO_URL = 'https://github.com/me-alter/alter-me';
+const REPO_URL = 'https://github.com/alter-me-a-i/alter-me';
 const DOC_URLS = {
   github: REPO_URL,
   disclaimer: REPO_URL + '/blob/main/DISCLAIMER.md',
@@ -1330,10 +1330,10 @@ const STATE = {
    Domain-based default + persistent switcher
    ============================================================ */
 function detectDefaultDirection() {
-  // alter-me.* defaults to 'decide', me-alter.* defaults to 'learn'.
+  // single-purpose site: always 'decide'.
   // anything else defaults to letting the user pick.
   const host = (window.location.hostname || '').toLowerCase();
-  if (host.includes('me-alter')) return 'learn';
+  return 'decide'; // single-purpose site (mirror routing removed)
   if (host.includes('alter-me')) return 'decide';
   return null; // show master landing
 }
