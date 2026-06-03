@@ -15,7 +15,7 @@ Your data never leaves your device unless you choose to export it. The project d
 
 You bring the AI. You bring the storage. We provide the protocol.
 
-**Live demo:** [https://alter-me.ai](https://alter-me.ai) · [https://me-alter.ai](https://me-alter.ai)
+**Live demo:** [https://alter-me.ai](https://alter-me.ai) · [https://my-alter.ai](https://my-alter.ai)
 
 ---
 
