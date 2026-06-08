@@ -892,6 +892,109 @@ body[data-skin="boomer"] .modal { background: #fff; color: #1a1a1a; border: 2px 
   .gate-actions { flex-direction: column-reverse; align-items: stretch; }
   .gate-actions button { width: 100%; }
 }
+
+/* ============================================================
+   BRAND LOCK — one sovereign look: pure black, white,
+   JetBrains Mono, hairline rules, the wide dash. Overrides
+   every generational skin and the light theme so the whole
+   tool reads as the canonical alter/me/a/i brand. Restyle
+   only — the learn / decide logic underneath is untouched.
+   ============================================================ */
+:root { color-scheme: dark; }
+
+body,
+body[data-skin],
+body[data-skin][data-mode],
+body[data-mode],
+body[data-mode="light"],
+body[data-mode="light"]:not([data-skin]),
+body[data-direction="learn"][data-mode="light"][data-session-count="1"],
+body[data-direction="learn"][data-mode="light"][data-session-count="2"],
+body[data-direction="learn"][data-mode="light"][data-session-count="3"],
+body[data-direction="learn"][data-mode="light"][data-session-count="many"] {
+  --bg: #000 !important;
+  --fg: #fff !important;
+  --hairline: rgba(255,255,255,0.14) !important;
+  --hairline-strong: rgba(255,255,255,0.55) !important;
+  background: #000 !important;
+  color: #fff !important;
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+}
+
+/* one typeface everywhere — kill Fraunces / DM Serif / Crimson / Lora / Jakarta */
+.skin-display,
+body[data-skin] .skin-display {
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  text-transform: none !important;
+}
+
+/* one monochrome accent — no lime, coral, gold, brick */
+.skin-accent,
+body[data-skin] .skin-accent { color: #fff !important; }
+
+/* cards -> hairline frames: no shadow / rounding / gradient / blur */
+.skin-card,
+body[data-skin] .skin-card {
+  background: rgba(255,255,255,0.02) !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* inputs -> bare mono fields */
+.skin-input,
+body[data-skin] .skin-input {
+  background: transparent !important;
+  border: 1px solid rgba(255,255,255,0.25) !important;
+  border-radius: 0 !important;
+  color: #fff !important;
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+  box-shadow: none !important;
+}
+.skin-input:focus,
+body[data-skin] .skin-input:focus { border-color: rgba(255,255,255,0.6) !important; outline: none !important; }
+
+/* buttons -> quiet inverted mono: no neon / shadow / round / shift */
+.skin-btn,
+body[data-skin] .skin-btn {
+  background: #fff !important;
+  color: #000 !important;
+  border: 1px solid #fff !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+  letter-spacing: 0.02em !important;
+  transform: none !important;
+}
+.skin-btn:hover,
+body[data-skin] .skin-btn:hover { background: rgba(255,255,255,0.82) !important; transform: none !important; box-shadow: none !important; }
+
+/* the brand is dark — remove the light / dark switch entirely */
+.mode-toggle { display: none !important; }
+
+/* the canonical wide dash, on any wordmark */
+.brand .dash { display: inline-block; transform: scaleX(1.6); margin: 0 0.15em; opacity: 0.7; }
+
+/* ---- ecosystem cross-nav (shared treatment across all three sites) ---- */
+.eco-nav {
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+  gap: 0.45rem 1.1rem;
+  margin: 2.75rem auto 0.75rem;
+  font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.eco-nav a, .eco-nav .eco-here {
+  text-decoration: none; opacity: 0.5; color: #fff;
+  border-bottom: 1px solid transparent; padding-bottom: 2px;
+  transition: opacity 160ms, border-color 160ms;
+}
+.eco-nav a:hover { opacity: 1; border-bottom-color: rgba(255,255,255,0.5); }
+.eco-nav .eco-here { opacity: 0.9; border-bottom-color: rgba(255,255,255,0.35); cursor: default; }
+.eco-nav .eco-role { opacity: 0.5; }
 </style>
 </head>
 <body>
@@ -935,6 +1038,13 @@ body[data-skin="boomer"] .modal { background: #fff; color: #1a1a1a; border: 2px 
   </div>
 
   <div class="landing-foot">Both lead to the same node. You can switch anytime.</div>
+
+  <nav class="eco-nav" aria-label="the alter/me/a/i ecosystem">
+    <a href="https://marcoajello.ai">marcoajello.ai <span class="eco-role">hub</span></a>
+    <a href="https://my-alter.ai">my-alter.ai <span class="eco-role">private</span></a>
+    <span class="eco-here">alter-me.ai <span class="eco-role">learning</span></span>
+    <a href="https://github.com/alter-me-a-i" target="_blank" rel="noopener noreferrer">GitHub</a>
+  </nav>
 
   <div class="entry-links">
     <a data-doc="github" href="#">GitHub</a>
