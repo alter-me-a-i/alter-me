@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-<title>Alter-Me. Know Thyself.</title>
+<title>Alter Me. Know Thyself.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;900&family=Space+Mono:wght@400;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,700&family=Plus+Jakarta+Sans:wght@300;400;500;700&family=Crimson+Pro:wght@400;600;800&family=DM+Serif+Display&family=Lora:wght@400;600&display=swap" rel="stylesheet" />
@@ -1021,7 +1021,7 @@ body[data-skin] .skin-btn:hover { background: rgba(255,255,255,0.82) !important;
      The node. Two doors. Same machine, opposite directions.
      ========================================================= -->
 <div class="screen entry-screen active" id="screen-landing">
-  <div class="brand">alter<span class="dash">-</span>me</div>
+  <div class="brand">alter me</div>
   <div class="tag landing-tag">know thyself <span class="tag-sep">|</span> own your self</div>
 
   <div class="landing-question">Are you here to learn, or to decide?</div>
@@ -1062,7 +1062,7 @@ body[data-skin] .skin-btn:hover { background: rgba(255,255,255,0.82) !important;
      Inside-out. Pick a concept, scale the explanation to you.
      ========================================================= -->
 <div class="screen entry-screen" id="screen-learn-entry">
-  <div class="brand">me<span class="dash">-</span>alter</div>
+  <div class="brand">alter me</div>
   <div class="tag landing-tag">own your self <span class="tag-sep">|</span> know thyself</div>
 
   <div class="learn-intro">
@@ -1121,7 +1121,7 @@ body[data-skin] .skin-btn:hover { background: rgba(255,255,255,0.82) !important;
      ========================================================= -->
 <div class="screen" id="screen-learn-output">
   <div class="protocol-header">
-    <div class="brand skin-display">me<span class="dash skin-accent">-</span>alter</div>
+    <div class="brand skin-display">alter me</div>
     <div class="phase-tag" id="learnTopicTag">learning</div>
   </div>
 
@@ -1155,7 +1155,7 @@ body[data-skin] .skin-btn:hover { background: rgba(255,255,255,0.82) !important;
      Real-age check. Discarded after the gate. Never stored.
      ========================================================= -->
 <div class="screen entry-screen" id="screen-birth-year">
-  <div class="brand">alter<span class="dash">-</span>me</div>
+  <div class="brand">alter me</div>
   <div class="tag">know thyself <span class="tag-sep">|</span> own your self</div>
 
   <div class="q">
@@ -1185,7 +1185,7 @@ body[data-skin] .skin-btn:hover { background: rgba(255,255,255,0.82) !important;
      The pause. The status read. Routes the design language.
      ========================================================= -->
 <div class="screen entry-screen" id="screen-felt-age">
-  <div class="brand">alter<span class="dash">-</span>me</div>
+  <div class="brand">alter me</div>
   <div class="tag">know thyself <span class="tag-sep">|</span> own your self</div>
 
   <div class="q">
@@ -1218,7 +1218,7 @@ body[data-skin] .skin-btn:hover { background: rgba(255,255,255,0.82) !important;
      Kind, brief, not patronizing. Out, not blocked-with-shame.
      ========================================================= -->
 <div class="screen entry-screen" id="screen-age-gate">
-  <div class="brand">alter<span class="dash">-</span>me</div>
+  <div class="brand">alter me</div>
   <div class="tag">know thyself <span class="tag-sep">|</span> own your self</div>
 
   <div class="age-gate-body">
@@ -1244,7 +1244,7 @@ body[data-skin] .skin-btn:hover { background: rgba(255,255,255,0.82) !important;
      ========================================================= -->
 <div class="screen" id="screen-onboard">
   <div class="gate-header">
-    <div class="gate-brand skin-display">alter<span class="dash skin-accent">-</span>me</div>
+    <div class="gate-brand skin-display">alter me</div>
     <div class="gate-tagline">know thyself <span class="tag-sep">|</span> own your self</div>
   </div>
 
@@ -1307,7 +1307,7 @@ body[data-skin] .skin-btn:hover { background: rgba(255,255,255,0.82) !important;
      ========================================================= -->
 <div class="screen" id="screen-protocol">
   <div class="protocol-header">
-    <div class="brand skin-display">alter<span class="dash skin-accent">-</span>me</div>
+    <div class="brand skin-display">alter me</div>
     <div class="phase-tag" id="phaseTag">phase 0 · the gate</div>
   </div>
 
@@ -2420,7 +2420,7 @@ CORE FRAMEWORK YOU'RE DRAWING FROM:
 - The entire framework is opportunity cost. Every spoon spent is a spoon not spent elsewhere. The decision protocol is an opportunity cost rendering machine.
 - Three channels of privilege deployment: self-soothing (cushions, can seal the balloon), self-awareness (therapy/contemplation, expands acclimatization), safe self-expression (rage rooms/art/dance/ritual, controlled venting). A healthy balloon needs all three.
 - Resistance is essential to expansion. Replenishment without resistance produces sealed balloons at every wealth level. The lottery problem appears at both ends of the wealth distribution; mechanism is identical.
-- The center extracts. The periphery innovates under pressure. The differential is the engine. AI lowers cost-per-spoon but doesn't eliminate extraction.
+- The center extracts. The periphery innovates under pressure. The differential is the cortex. AI lowers cost-per-spoon but doesn't eliminate extraction.
 - Status, not story. Outcomes, not narratives.
 ${deepNote ? '\nADDITIONAL CANONICAL NOTES FOR THIS CONCEPT (draw from these — adapt the depth and register, but be accurate to the mechanism):\n' + deepNote : ''}
 RULES:
@@ -2583,6 +2583,30 @@ document.addEventListener('DOMContentLoaded', () => {
   bindLearnFlow();
 });
 
+</script>
+<script>
+/* Cycle the tagline through the curated word combos (fades between each). */
+(function(){
+  const combos = [
+    ["own your self", "know thyself"],
+    ["know thyself", "own your self"],
+    ["know your self", "own thyself"],
+    ["know thyself", "your own self"],
+  ];
+  const els = document.querySelectorAll('.tag, .gate-tagline');
+  if (!els.length) return;
+  const sep = ' <span class="tag-sep">|</span> ';
+  els.forEach(el => { el.style.transition = 'opacity .45s'; });
+  let i = 0;
+  setInterval(function(){
+    i = (i + 1) % combos.length;
+    const html = combos[i][0] + sep + combos[i][1];
+    els.forEach(function(el){
+      el.style.opacity = '0';
+      setTimeout(function(){ el.innerHTML = html; el.style.opacity = '1'; }, 450);
+    });
+  }, 3200);
+})();
 </script>
 </body>
 </html>
